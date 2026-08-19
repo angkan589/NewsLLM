@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:newsllm/core/theme/app_theme.dart';
+import 'package:newsllm/features/home/presentation/pages/home_page.dart';
 
 void main() {
   runApp(const NewsLLMApp());
@@ -14,11 +15,7 @@ class NewsLLMApp extends StatelessWidget {
       title: 'NewsLLM',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const Scaffold(
-        body: Center(
-          child: Text('NewsLLM'),
-        ),
-      ),
+      home: const HomePage(),
     );
   }
 }
