@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:newsllm/core/navigation/main_navigation_bar.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
+import 'package:newsllm/features/news/data/mock_news_repository.dart';
+import 'package:newsllm/features/news/domain/models/news_article.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -10,109 +13,11 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  final _searchController = TextEditingController();
-
+  final TextEditingController _searchController = TextEditingController();
   String _query = '';
-  String _selectedCategory = 'All';
 
-  final List<String> _categories = const [
-    'All',
-    'National',
-    'International',
-    'Business',
-    'Science & Tech',
-  ];
-
-  final List<_SearchArticle> _articles = const [
-    _SearchArticle(
-      newspaperName: 'The Daily Star',
-      category: 'National',
-      title: 'Bangladesh introduces a national green growth roadmap',
-      summary:
-          'The roadmap prioritises renewable energy, sustainable jobs and climate-resilient infrastructure.',
-      readingTime: '4 min read',
-      accentColor: AppColors.primary,
-    ),
-    _SearchArticle(
-      newspaperName: 'Prothom Alo',
-      category: 'National',
-      title: 'Digital learning programme reaches more students',
-      summary:
-          'New technology and learning resources are being introduced in classrooms.',
-      readingTime: '3 min read',
-      accentColor: Color(0xFF059669),
-    ),
-    _SearchArticle(
-      newspaperName: 'BBC News',
-      category: 'International',
-      title: 'Regional leaders discuss stronger economic cooperation',
-      summary:
-          'The meeting highlighted trade, technology and cross-border collaboration.',
-      readingTime: '4 min read',
-      accentColor: Color(0xFFDC2626),
-    ),
-    _SearchArticle(
-      newspaperName: 'Reuters',
-      category: 'International',
-      title: 'Countries expand international climate partnerships',
-      summary:
-          'The agreement supports renewable energy investment and environmental research.',
-      readingTime: '3 min read',
-      accentColor: AppColors.primary,
-    ),
-    _SearchArticle(
-      newspaperName: 'The Business Standard',
-      category: 'Business',
-      title: 'Digital payment services continue to expand',
-      summary:
-          'New services aim to make transactions faster, safer and more accessible.',
-      readingTime: '3 min read',
-      accentColor: Color(0xFFD97706),
-    ),
-    _SearchArticle(
-      newspaperName: 'Financial Express',
-      category: 'Business',
-      title: 'Small businesses increase their use of technology',
-      summary:
-          'Digital tools are helping businesses manage customers, sales and financial records.',
-      readingTime: '4 min read',
-      accentColor: Color(0xFF7C3AED),
-    ),
-    _SearchArticle(
-      newspaperName: 'The Daily Star',
-      category: 'Science & Tech',
-      title: 'Satellite data improves national disaster monitoring',
-      summary:
-          'Updated technology will provide faster and more accurate disaster warnings.',
-      readingTime: '4 min read',
-      accentColor: AppColors.primary,
-    ),
-    _SearchArticle(
-      newspaperName: 'BBC Science',
-      category: 'Science & Tech',
-      title: 'Researchers develop more efficient solar technology',
-      summary:
-          'The research could improve renewable-energy production while reducing costs.',
-      readingTime: '4 min read',
-      accentColor: Color(0xFF059669),
-    ),
-  ];
-
-  List<_SearchArticle> get _filteredArticles {
-    final normalizedQuery = _query.trim().toLowerCase();
-
-    return _articles.where((article) {
-      final matchesCategory = _selectedCategory == 'All' ||
-          article.category == _selectedCategory;
-
-      final matchesQuery = normalizedQuery.isEmpty ||
-          article.title.toLowerCase().contains(normalizedQuery) ||
-          article.summary.toLowerCase().contains(normalizedQuery) ||
-          article.newspaperName.toLowerCase().contains(normalizedQuery) ||
-          article.category.toLowerCase().contains(normalizedQuery);
-
-      return matchesCategory && matchesQuery;
-    }).toList();
+  List<NewsArticle> get _results {
+    return MockNewsRepository.search(_query);
   }
 
   @override
@@ -121,18 +26,31 @@ class _SearchPageState extends State<SearchPage> {
     super.dispose();
   }
 
+  void _updateSearch(String value) {
+    setState(() {
+      _query = value;
+    });
+  }
+
   void _clearSearch() {
     _searchController.clear();
 
     setState(() {
       _query = '';
-      _selectedCategory = 'All';
     });
+  }
+
+  void _openArticle(NewsArticle article) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ArticleDetailPage(article: article),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final results = _filteredArticles;
+    final results = _results;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -153,87 +71,44 @@ class _SearchPageState extends State<SearchPage> {
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
+      bottomNavigationBar: const MainNavigationBar(
+        currentDestination: MainDestination.search,
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 30,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1000),
+            constraints: const BoxConstraints(maxWidth: 950),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextField(
-                  controller: _searchController,
-                  autofocus: true,
-                  onChanged: (value) {
-                    setState(() {
-                      _query = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Search stories, newspapers or topics...',
-                    prefixIcon: const Icon(Icons.search_rounded),
-                    suffixIcon: _query.isEmpty
-                        ? null
-                        : IconButton(
-                            tooltip: 'Clear search',
-                            onPressed: _clearSearch,
-                            icon: const Icon(Icons.close_rounded),
-                          ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: AppColors.border),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: _categories.map((category) {
-                      final selected = category == _selectedCategory;
-
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 9),
-                        child: ChoiceChip(
-                          label: Text(category),
-                          selected: selected,
-                          onSelected: (_) {
-                            setState(() {
-                              _selectedCategory = category;
-                            });
-                          },
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                const SizedBox(height: 28),
+                _buildSearchBox(),
+                const SizedBox(height: 25),
                 Text(
-                  '${results.length} ${results.length == 1 ? 'result' : 'results'}',
+                  _query.trim().isEmpty
+                      ? 'All briefings'
+                      : '${results.length} search result${results.length == 1 ? '' : 's'}',
                   style: const TextStyle(
                     color: AppColors.darkNavy,
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 6),
+                Text(
+                  _query.trim().isEmpty
+                      ? 'Search by headline, category, summary or newspaper.'
+                      : 'Results matching “${_query.trim()}”',
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 20),
                 if (results.isEmpty)
                   _buildEmptyState()
                 else
-                  ...results.map(
-                    (article) => Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: _buildArticleCard(article),
-                    ),
-                  ),
+                  ...results.map(_buildArticleCard),
               ],
             ),
           ),
@@ -242,113 +117,152 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget _buildArticleCard(_SearchArticle article) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(18),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => ArticleDetailPage(
-                newspaperName: article.newspaperName,
-                category: article.category.toUpperCase(),
-                title: article.title,
-                summary: article.summary,
-                readingTime: article.readingTime,
-                accentColor: article.accentColor,
-              ),
-            ),
-          );
-        },
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            border: Border.all(color: AppColors.border),
-            borderRadius: BorderRadius.circular(18),
+  Widget _buildSearchBox() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(17),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: TextField(
+        controller: _searchController,
+        autofocus: false,
+        onChanged: _updateSearch,
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          hintText: 'Search news, category or newspaper',
+          prefixIcon: const Icon(
+            Icons.search_rounded,
+            color: AppColors.textSecondary,
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: article.accentColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(14),
+          suffixIcon: _query.isEmpty
+              ? null
+              : IconButton(
+                  tooltip: 'Clear search',
+                  onPressed: _clearSearch,
+                  icon: const Icon(Icons.close_rounded),
                 ),
-                child: Icon(
-                  Icons.article_outlined,
-                  color: article.accentColor,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 18,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildArticleCard(NewsArticle article) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            _openArticle(article);
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: article.accentColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(
+                    _categoryIcon(article.category),
+                    color: article.accentColor,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 6,
-                      children: [
-                        Text(
-                          article.category.toUpperCase(),
-                          style: TextStyle(
-                            color: article.accentColor,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.7,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 6,
+                        children: [
+                          Text(
+                            article.category,
+                            style: TextStyle(
+                              color: article.accentColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.6,
+                            ),
                           ),
+                          Text(
+                            article.newspaperName,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 9),
+                      Text(
+                        article.title,
+                        style: const TextStyle(
+                          color: AppColors.darkNavy,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          height: 1.35,
                         ),
-                        Text(
-                          article.newspaperName,
-                          style: const TextStyle(
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        article.summary,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                          height: 1.45,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.schedule_rounded,
+                            size: 15,
                             color: AppColors.textSecondary,
-                            fontSize: 11,
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      article.title,
-                      style: const TextStyle(
-                        color: AppColors.textPrimary,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
-                        height: 1.3,
+                          const SizedBox(width: 5),
+                          Text(
+                            article.readingTime,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 7),
-                    Text(
-                      article.summary,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        height: 1.45,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      article.readingTime,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              const Icon(
-                Icons.arrow_forward_ios_rounded,
-                color: AppColors.textSecondary,
-                size: 16,
-              ),
-            ],
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColors.textSecondary,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -358,10 +272,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget _buildEmptyState() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 60,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -371,22 +282,23 @@ class _SearchPageState extends State<SearchPage> {
         children: [
           const Icon(
             Icons.search_off_rounded,
+            size: 48,
             color: AppColors.textSecondary,
-            size: 52,
           ),
           const SizedBox(height: 16),
           const Text(
-            'No stories found',
+            'No briefings found',
             style: TextStyle(
               color: AppColors.darkNavy,
-              fontSize: 21,
+              fontSize: 20,
               fontWeight: FontWeight.w800,
             ),
           ),
           const SizedBox(height: 8),
           const Text(
-            'Try another keyword or category.',
-            style: TextStyle(color: AppColors.textSecondary),
+            'Try another headline, category or newspaper name.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.textSecondary, height: 1.5),
           ),
           const SizedBox(height: 18),
           OutlinedButton(
@@ -397,22 +309,19 @@ class _SearchPageState extends State<SearchPage> {
       ),
     );
   }
-}
 
-class _SearchArticle {
-  const _SearchArticle({
-    required this.newspaperName,
-    required this.category,
-    required this.title,
-    required this.summary,
-    required this.readingTime,
-    required this.accentColor,
-  });
-
-  final String newspaperName;
-  final String category;
-  final String title;
-  final String summary;
-  final String readingTime;
-  final Color accentColor;
+  IconData _categoryIcon(String category) {
+    switch (category.toUpperCase()) {
+      case 'NATIONAL':
+        return Icons.account_balance_outlined;
+      case 'INTERNATIONAL':
+        return Icons.public_rounded;
+      case 'BUSINESS':
+        return Icons.trending_up_rounded;
+      case 'SCIENCE & TECH':
+        return Icons.memory_rounded;
+      default:
+        return Icons.article_outlined;
+    }
+  }
 }

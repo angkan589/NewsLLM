@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
+import 'package:newsllm/features/quiz/domain/models/quiz_models.dart';
 
 class ExamHistoryPage extends StatelessWidget {
   const ExamHistoryPage({super.key});
@@ -29,16 +30,13 @@ class ExamHistoryPage extends StatelessWidget {
       body: AnimatedBuilder(
         animation: AppSession.instance,
         builder: (context, child) {
-          final results = AppSession.instance.quizPercentages;
+          final results = AppSession.instance.quizResults.reversed.toList();
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 32,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 850),
+                constraints: const BoxConstraints(maxWidth: 900),
                 child: results.isEmpty
                     ? _buildEmptyState(context)
                     : _buildHistory(results),
@@ -50,14 +48,12 @@ class ExamHistoryPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHistory(List<double> results) {
-    final newestFirst = results.reversed.toList();
-
+  Widget _buildHistory(List<QuizResult> results) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Your results',
+          'Your exam attempts',
           style: TextStyle(
             color: AppColors.darkNavy,
             fontSize: 28,
@@ -66,27 +62,15 @@ class ExamHistoryPage extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          '${results.length} completed ${results.length == 1 ? 'exam' : 'exams'}',
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 15,
-          ),
+          '${results.length} recorded ${results.length == 1 ? 'attempt' : 'attempts'}',
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 15),
         ),
         const SizedBox(height: 24),
-        ...List.generate(
-          newestFirst.length,
-          (index) {
-            final percentage = newestFirst[index].round();
-            final attemptNumber = results.length - index;
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 14),
-              child: _ExamResultCard(
-                attemptNumber: attemptNumber,
-                percentage: percentage,
-              ),
-            );
-          },
+        ...results.map(
+          (result) => Padding(
+            padding: const EdgeInsets.only(bottom: 14),
+            child: _QuizResultCard(result: result),
+          ),
         ),
       ],
     );
@@ -95,10 +79,7 @@ class ExamHistoryPage extends StatelessWidget {
   Widget _buildEmptyState(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 24,
-        vertical: 60,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
@@ -114,7 +95,7 @@ class ExamHistoryPage extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: const Icon(
-              Icons.quiz_outlined,
+              Icons.history_rounded,
               color: AppColors.primary,
               size: 40,
             ),
@@ -131,12 +112,9 @@ class ExamHistoryPage extends StatelessWidget {
           ),
           const SizedBox(height: 9),
           const Text(
-            'Complete a daily quiz while signed in and your result will appear here.',
+            'Complete a quiz while signed in and your attempt will appear here.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              height: 1.5,
-            ),
+            style: TextStyle(color: AppColors.textSecondary, height: 1.5),
           ),
           const SizedBox(height: 22),
           OutlinedButton.icon(
@@ -152,19 +130,17 @@ class ExamHistoryPage extends StatelessWidget {
   }
 }
 
-class _ExamResultCard extends StatelessWidget {
-  const _ExamResultCard({
-    required this.attemptNumber,
-    required this.percentage,
-  });
+class _QuizResultCard extends StatelessWidget {
+  const _QuizResultCard({required this.result});
 
-  final int attemptNumber;
-  final int percentage;
+  final QuizResult result;
 
   @override
   Widget build(BuildContext context) {
+    final percentage = result.percentage.round();
     final passed = percentage >= 60;
-    final color = passed
+
+    final statusColor = passed
         ? const Color(0xFF059669)
         : const Color(0xFFDC2626);
 
@@ -177,20 +153,21 @@ class _ExamResultCard extends StatelessWidget {
         border: Border.all(color: AppColors.border),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 54,
-            height: 54,
+            width: 58,
+            height: 58,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(15),
+              color: statusColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
-              passed
-                  ? Icons.check_circle_outline_rounded
-                  : Icons.refresh_rounded,
-              color: color,
+              result.quizType == QuizType.daily
+                  ? Icons.calendar_today_outlined
+                  : Icons.article_outlined,
+              color: statusColor,
             ),
           ),
           const SizedBox(width: 16),
@@ -198,35 +175,133 @@ class _ExamResultCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    _ResultBadge(
+                      text: result.typeLabel,
+                      color: result.quizType == QuizType.daily
+                          ? AppColors.primary
+                          : const Color(0xFF7C3AED),
+                    ),
+                    _ResultBadge(
+                      text: 'Attempt ${result.attemptNumber}',
+                      color: AppColors.textSecondary,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 11),
                 Text(
-                  'Daily quiz attempt $attemptNumber',
+                  result.quizTitle,
                   style: const TextStyle(
                     color: AppColors.textPrimary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    height: 1.3,
                   ),
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  passed ? 'Passed' : 'Needs improvement',
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                if (result.relatedArticleTitle != null) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    result.relatedArticleTitle!,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                      height: 1.4,
+                    ),
                   ),
+                ],
+                const SizedBox(height: 11),
+                Wrap(
+                  spacing: 18,
+                  runSpacing: 6,
+                  children: [
+                    Text(
+                      '${result.score}/${result.totalQuestions} correct',
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      _formatDateTime(result.completedAt),
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          Text(
-            '$percentage%',
-            style: TextStyle(
-              color: color,
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-            ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '$percentage%',
+                style: TextStyle(
+                  color: statusColor,
+                  fontSize: 25,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                passed ? 'Passed' : 'Review',
+                style: TextStyle(
+                  color: statusColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    final local = dateTime.toLocal();
+
+    final day = local.day.toString().padLeft(2, '0');
+    final month = local.month.toString().padLeft(2, '0');
+    final year = local.year.toString();
+
+    final hourValue = local.hour % 12 == 0 ? 12 : local.hour % 12;
+    final minute = local.minute.toString().padLeft(2, '0');
+    final period = local.hour >= 12 ? 'PM' : 'AM';
+
+    return '$day/$month/$year • $hourValue:$minute $period';
+  }
+}
+
+class _ResultBadge extends StatelessWidget {
+  const _ResultBadge({required this.text, required this.color});
+
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: color,
+          fontSize: 10,
+          fontWeight: FontWeight.w800,
+        ),
       ),
     );
   }

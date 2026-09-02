@@ -9,6 +9,7 @@ import 'package:newsllm/features/auth/presentation/pages/auth_page.dart';
 import 'package:newsllm/features/search/presentation/pages/search_page.dart';
 import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/features/profile/presentation/pages/profile_page.dart';
+import 'package:newsllm/core/navigation/main_navigation_bar.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -20,6 +21,9 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      bottomNavigationBar: const MainNavigationBar(
+        currentDestination: MainDestination.home,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Center(
@@ -123,12 +127,12 @@ class HomePage extends StatelessWidget {
             if (session.isSignedIn) {
               return OutlinedButton.icon(
                 onPressed: () {
-  Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (context) => const ProfilePage(),
-    ),
-  );
-},
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const ProfilePage(),
+                    ),
+                  );
+                },
                 icon: const Icon(Icons.person_outline_rounded),
                 label: Text(session.name),
               );

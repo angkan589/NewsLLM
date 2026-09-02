@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/core/session/app_session.dart';
-import 'package:newsllm/features/auth/presentation/pages/auth_page.dart'
-    as auth_page;
+import 'package:newsllm/core/theme/app_colors.dart';
+import 'package:newsllm/features/auth/presentation/pages/auth_page.dart';
+import 'package:newsllm/features/quiz/domain/models/quiz_models.dart';
+import 'package:newsllm/features/quiz/presentation/pages/quiz_page.dart';
+import 'package:newsllm/features/news/domain/models/news_article.dart';
 
 class ArticleDetailPage extends StatefulWidget {
   const ArticleDetailPage({
     super.key,
-    required this.newspaperName,
-    required this.category,
-    required this.title,
-    required this.summary,
-    required this.readingTime,
-    required this.accentColor,
+    this.article,
+    this.newspaperName = '',
+    this.category = '',
+    this.title = '',
+    this.summary = '',
+    this.readingTime = '',
+    this.accentColor = AppColors.primary,
   });
 
+  final NewsArticle? article;
+
+  // Temporary compatibility fields. We will remove these after every page
+  // has been migrated to NewsArticle.
   final String newspaperName;
   final String category;
   final String title;
@@ -22,22 +29,24 @@ class ArticleDetailPage extends StatefulWidget {
   final String readingTime;
   final Color accentColor;
 
+  String get resolvedNewspaperName => article?.newspaperName ?? newspaperName;
+
+  String get resolvedCategory => article?.category ?? category;
+
+  String get resolvedTitle => article?.title ?? title;
+
+  String get resolvedSummary => article?.summary ?? summary;
+
+  String get resolvedReadingTime => article?.readingTime ?? readingTime;
+
+  Color get resolvedAccentColor => article?.accentColor ?? accentColor;
+
   @override
   State<ArticleDetailPage> createState() => _ArticleDetailPageState();
 }
 
 class _ArticleDetailPageState extends State<ArticleDetailPage> {
   bool _isBookmarked = false;
-  int? _selectedAnswer;
-  bool _answerChecked = false;
-  @override
-void initState() {
-  super.initState();
-
-  _isBookmarked = AppSession.instance.isArticleBookmarked(
-    widget.title,
-  );
-}
 
   final List<Map<String, String>> _facts = const [
     {'label': 'WHO', 'value': 'Government agencies and relevant stakeholders'},
@@ -53,12 +62,68 @@ void initState() {
     },
   ];
 
-  final List<String> _quizOptions = const [
-    'To support sustainable national development',
-    'To reduce international cooperation',
-    'To replace existing public services',
-    'To limit access to technology',
-  ];
+  @override
+  void initState() {
+    super.initState();
+
+    _isBookmarked = AppSession.instance.isArticleBookmarked(
+      widget.resolvedTitle,
+    );
+  }
+
+  QuizDefinition get _articleQuiz {
+    final quizId = widget.resolvedTitle
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        .replaceAll(RegExp(r'^-|-$'), '');
+
+    return QuizDefinition(
+      id: 'article-$quizId',
+      title: 'Article quiz',
+      type: QuizType.article,
+      relatedArticleTitle: widget.resolvedTitle,
+      questions: [
+        QuizQuestion(
+          id: '$quizId-headline',
+          question: 'Which headline belongs to this briefing?',
+          options: [
+            widget.resolvedTitle,
+            'Regional tourism programme receives international funding',
+            'New glacier research project begins in Europe',
+            'Global sports competition announces its final schedule',
+          ],
+          correctAnswerIndex: 0,
+          explanation: 'This is the headline of the briefing you just studied.',
+        ),
+        QuizQuestion(
+          id: '$quizId-summary',
+          question: 'Which statement best summarizes this briefing?',
+          options: [
+            widget.resolvedSummary,
+            'The briefing is mainly about entertainment and celebrity news.',
+            'The briefing announces the cancellation of all public services.',
+            'The briefing discusses an unrelated international sports event.',
+          ],
+          correctAnswerIndex: 0,
+          explanation:
+              'The correct option contains the central summary of the article.',
+        ),
+        QuizQuestion(
+          id: '$quizId-source',
+          question: 'Which news source published this briefing?',
+          options: [
+            widget.resolvedNewspaperName,
+            'An unnamed social-media account',
+            'A fictional newspaper',
+            'No source was provided',
+          ],
+          correctAnswerIndex: 0,
+          explanation:
+              'The source is displayed at the top of the news briefing.',
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +136,13 @@ void initState() {
         foregroundColor: AppColors.darkNavy,
         surfaceTintColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          tooltip: 'Back',
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          icon: const Icon(Icons.arrow_back_rounded),
+        ),
         title: const Text(
           'News briefing',
           style: TextStyle(fontWeight: FontWeight.w700),
@@ -134,68 +206,66 @@ void initState() {
   }
 
   Future<void> _toggleBookmark() async {
-  if (!AppSession.instance.isSignedIn) {
-    final shouldSignIn = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Sign in to save'),
-          content: const Text(
-            'You can read every briefing and take every exam as a guest. '
-            'Sign in is only required to save bookmarks and learning progress.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(false);
-              },
-              child: const Text('Continue as guest'),
+    if (!AppSession.instance.isSignedIn) {
+      final shouldSignIn = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: const Text('Sign in to save'),
+            content: const Text(
+              'You can read every briefing and take every exam as a guest. '
+              'Sign in is only required to save bookmarks and learning progress.',
             ),
-            FilledButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(true);
-              },
-              child: const Text('Sign in'),
-            ),
-          ],
-        );
-      },
-    );
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop(false);
+                },
+                child: const Text('Continue as guest'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop(true);
+                },
+                child: const Text('Sign in'),
+              ),
+            ],
+          );
+        },
+      );
 
-    if (shouldSignIn != true || !mounted) {
-      return;
+      if (shouldSignIn != true || !mounted) {
+        return;
+      }
+
+      await Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (context) => const AuthPage()));
+
+      if (!mounted || !AppSession.instance.isSignedIn) {
+        return;
+      }
     }
 
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const auth_page.AuthPage(),
+    final bookmarked = AppSession.instance.toggleArticleBookmark(
+      widget.resolvedTitle,
+    );
+
+    setState(() {
+      _isBookmarked = bookmarked;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          bookmarked
+              ? 'Briefing saved to bookmarks'
+              : 'Briefing removed from bookmarks',
+        ),
+        duration: const Duration(seconds: 2),
       ),
     );
-
-    if (!mounted || !AppSession.instance.isSignedIn) {
-      return;
-    }
   }
-
-  final bookmarked = AppSession.instance.toggleArticleBookmark(
-    widget.title,
-  );
-
-  setState(() {
-    _isBookmarked = bookmarked;
-  });
-
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(
-        bookmarked
-            ? 'Briefing saved to bookmarks'
-            : 'Briefing removed from bookmarks',
-      ),
-      duration: const Duration(seconds: 2),
-    ),
-  );
-}
 
   Widget _buildHero(bool isMobile) {
     return Container(
@@ -203,7 +273,7 @@ void initState() {
       padding: EdgeInsets.all(isMobile ? 22 : 34),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [widget.accentColor, AppColors.darkNavy],
+          colors: [widget.resolvedAccentColor, AppColors.darkNavy],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -216,13 +286,13 @@ void initState() {
             spacing: 10,
             runSpacing: 10,
             children: [
-              _buildBadge(widget.category),
-              _buildBadge(widget.newspaperName),
+              _buildBadge(widget.resolvedCategory),
+              _buildBadge(widget.resolvedNewspaperName),
             ],
           ),
           SizedBox(height: isMobile ? 22 : 32),
           Text(
-            widget.title,
+            widget.resolvedTitle,
             style: TextStyle(
               color: Colors.white,
               fontSize: isMobile ? 28 : 42,
@@ -232,7 +302,7 @@ void initState() {
           ),
           const SizedBox(height: 18),
           Text(
-            widget.summary,
+            widget.resolvedSummary,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.82),
               fontSize: isMobile ? 15 : 17,
@@ -244,7 +314,10 @@ void initState() {
             spacing: 20,
             runSpacing: 10,
             children: [
-              _buildHeroInfo(Icons.schedule_rounded, widget.readingTime),
+              _buildHeroInfo(
+                Icons.schedule_rounded,
+                widget.resolvedReadingTime,
+              ),
               _buildHeroInfo(
                 Icons.auto_awesome_rounded,
                 'AI-assisted exam summary',
@@ -293,10 +366,11 @@ void initState() {
           icon: Icons.article_outlined,
           title: 'The story in brief',
           child: Text(
-            '${widget.summary} This development is important because it '
-            'connects today’s news with wider national priorities. For exam '
-            'preparation, focus on the objective, responsible institutions '
-            'and expected public impact.',
+            widget.article?.content ??
+                '${widget.resolvedSummary} This development is important because it '
+                    'connects today’s news with wider national priorities. For exam '
+                    'preparation, focus on the objective, responsible institutions '
+                    'and expected public impact.',
             style: const TextStyle(
               color: AppColors.textPrimary,
               fontSize: 16,
@@ -305,14 +379,14 @@ void initState() {
           ),
         ),
         const SizedBox(height: 20),
-        const _SectionCard(
+        _SectionCard(
           icon: Icons.school_outlined,
           title: 'Exam takeaway',
           child: Text(
-            'Remember the initiative’s main objective, the authority responsible '
-            'for it and how it supports Bangladesh’s long-term development. '
-            'These points may appear in MCQ, short-answer or written questions.',
-            style: TextStyle(
+            widget.article?.examTakeaway ??
+                'Remember the initiative’s main objective, the authority responsible '
+                    'for it and how it supports Bangladesh’s long-term development.',
+            style: const TextStyle(
               color: AppColors.textPrimary,
               fontSize: 16,
               height: 1.7,
@@ -359,7 +433,7 @@ void initState() {
                   child: Text(
                     fact['label']!,
                     style: TextStyle(
-                      color: widget.accentColor,
+                      color: widget.resolvedAccentColor,
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
                     ),
@@ -385,126 +459,70 @@ void initState() {
   }
 
   Widget _buildQuiz() {
+    final quiz = _articleQuiz;
+
     return _SectionCard(
       icon: Icons.quiz_outlined,
       title: 'Check your understanding',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'What is the main purpose of the initiative discussed in this briefing?',
-            style: TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-              height: 1.4,
+          Text(
+            '${quiz.questions.length} questions based on this briefing.',
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 15,
+              height: 1.5,
             ),
           ),
-          const SizedBox(height: 16),
-          ...List.generate(
-            _quizOptions.length,
-            (index) => _buildQuizOption(index),
+          const SizedBox(height: 18),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: widget.resolvedAccentColor.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: widget.resolvedAccentColor.withValues(alpha: 0.2),
+              ),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.lightbulb_outline_rounded),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Review the summary and key facts before starting.',
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 8),
-          FilledButton(
-            onPressed: _selectedAnswer == null || _answerChecked
-                ? null
-                : () {
-                    setState(() {
-                      _answerChecked = true;
-                    });
-                  },
+          const SizedBox(height: 18),
+          FilledButton.icon(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => QuizPage(
+                    quiz: quiz,
+                    accentColor: widget.resolvedAccentColor,
+                  ),
+                ),
+              );
+            },
             style: FilledButton.styleFrom(
-              backgroundColor: widget.accentColor,
-              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 15),
+              backgroundColor: widget.resolvedAccentColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
             ),
-            child: const Text('Check answer'),
+            icon: const Icon(Icons.play_arrow_rounded),
+            label: const Text('Start article quiz'),
           ),
-          if (_answerChecked) ...[
-            const SizedBox(height: 14),
-            Text(
-              _selectedAnswer == 0
-                  ? 'Correct! This is the central objective.'
-                  : 'Not quite. Review the exam takeaway above.',
-              style: TextStyle(
-                color: _selectedAnswer == 0
-                    ? const Color(0xFF047857)
-                    : const Color(0xFFB91C1C),
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
         ],
-      ),
-    );
-  }
-
-  Widget _buildQuizOption(int index) {
-    final isSelected = _selectedAnswer == index;
-    final isCorrect = _answerChecked && index == 0;
-    final isWrong = _answerChecked && isSelected && index != 0;
-
-    Color borderColor = AppColors.border;
-    Color backgroundColor = Colors.white;
-
-    if (isSelected) {
-      borderColor = widget.accentColor;
-      backgroundColor = widget.accentColor.withValues(alpha: 0.06);
-    }
-
-    if (isCorrect) {
-      borderColor = AppColors.accent;
-      backgroundColor = const Color(0xFFECFDF5);
-    }
-
-    if (isWrong) {
-      borderColor = const Color(0xFFDC2626);
-      backgroundColor = const Color(0xFFFEF2F2);
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: InkWell(
-        onTap: _answerChecked
-            ? null
-            : () {
-                setState(() {
-                  _selectedAnswer = index;
-                });
-              },
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: borderColor),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                isCorrect
-                    ? Icons.check_circle_rounded
-                    : isWrong
-                    ? Icons.cancel_rounded
-                    : isSelected
-                    ? Icons.radio_button_checked_rounded
-                    : Icons.radio_button_off_rounded,
-                color: isCorrect
-                    ? AppColors.accent
-                    : isWrong
-                    ? const Color(0xFFDC2626)
-                    : isSelected
-                    ? widget.accentColor
-                    : AppColors.textSecondary,
-                size: 21,
-              ),
-              const SizedBox(width: 11),
-              Expanded(child: Text(_quizOptions[index])),
-            ],
-          ),
-        ),
       ),
     );
   }

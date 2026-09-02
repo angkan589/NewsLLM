@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
+import 'package:newsllm/features/news/data/mock_news_repository.dart';
+import 'package:newsllm/features/news/domain/models/news_article.dart';
 
 class NewspaperBriefingsPage extends StatelessWidget {
   const NewspaperBriefingsPage({
@@ -16,101 +18,92 @@ class NewspaperBriefingsPage extends StatelessWidget {
   final String language;
   final Color color;
 
+  List<NewsArticle> get _articles {
+    return MockNewsRepository.articles.where((article) {
+      return article.newspaperName.toLowerCase() == newspaperName.toLowerCase();
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final briefings = [
-      const _Briefing(
-        category: 'NATIONAL',
-        title: 'Bangladesh introduces a new national development roadmap',
-        summary:
-            'The initiative focuses on sustainable growth, employment and long-term economic development.',
-        readingTime: '4 min read',
-      ),
-      const _Briefing(
-        category: 'INTERNATIONAL',
-        title: 'Regional leaders discuss stronger economic cooperation',
-        summary:
-            'The meeting highlighted trade, technology and cross-border collaboration.',
-        readingTime: '3 min read',
-      ),
-      const _Briefing(
-        category: 'BUSINESS',
-        title: 'Digital payment services continue to expand',
-        summary:
-            'New services aim to make everyday transactions faster, safer and more accessible.',
-        readingTime: '3 min read',
-      ),
-      const _Briefing(
-        category: 'SCIENCE & TECH',
-        title: 'Satellite data improves national disaster monitoring',
-        summary:
-            'Updated technology will help authorities issue faster and more accurate warnings.',
-        readingTime: '4 min read',
-      ),
-    ];
+    final articles = _articles;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.white,
         foregroundColor: AppColors.darkNavy,
-        elevation: 0,
         surfaceTintColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          tooltip: 'Back',
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          icon: const Icon(Icons.arrow_back_rounded),
+        ),
         title: Text(
           newspaperName,
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1150),
+            constraints: const BoxConstraints(maxWidth: 1100),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildNewspaperHeader(context),
-                const SizedBox(height: 38),
-                Text(
+                _buildNewspaperHeader(articles.length),
+                const SizedBox(height: 34),
+                const Text(
                   'Today’s briefings',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  style: TextStyle(
                     color: AppColors.darkNavy,
+                    fontSize: 25,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
                 const SizedBox(height: 7),
                 Text(
-                  '${briefings.length} exam-focused stories selected from $newspaperName.',
+                  articles.isEmpty
+                      ? 'No stories are available from $newspaperName yet.'
+                      : '${articles.length} exam-focused '
+                            '${articles.length == 1 ? 'story' : 'stories'} '
+                            'selected from $newspaperName.',
                   style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 15,
                   ),
                 ),
                 const SizedBox(height: 22),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final columns = constraints.maxWidth >= 850 ? 2 : 1;
-                    final spacing = 18.0;
-                    final cardWidth =
-                        (constraints.maxWidth - spacing * (columns - 1)) /
-                        columns;
+                if (articles.isEmpty)
+                  _buildEmptyState(context)
+                else
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final columns = constraints.maxWidth >= 800 ? 2 : 1;
+                      final spacing = 18.0;
+                      final cardWidth =
+                          (constraints.maxWidth - spacing * (columns - 1)) /
+                          columns;
 
-                    return Wrap(
-                      spacing: spacing,
-                      runSpacing: spacing,
-                      children: briefings.map((briefing) {
-                        return SizedBox(
-                          width: cardWidth,
-                          child: _BriefingCard(
-                            briefing: briefing,
-                            newspaperName: newspaperName,
-                            color: color,
-                          ),
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
+                      return Wrap(
+                        spacing: spacing,
+                        runSpacing: spacing,
+                        children: articles.map((article) {
+                          return SizedBox(
+                            width: cardWidth,
+                            child: _BriefingCard(
+                              article: article,
+                              color: color,
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
               ],
             ),
           ),
@@ -119,7 +112,7 @@ class NewspaperBriefingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildNewspaperHeader(BuildContext context) {
+  Widget _buildNewspaperHeader(int articleCount) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(28),
@@ -155,14 +148,16 @@ class NewspaperBriefingsPage extends StatelessWidget {
             children: [
               Text(
                 newspaperName,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                style: const TextStyle(
                   color: AppColors.darkNavy,
+                  fontSize: 24,
                   fontWeight: FontWeight.w800,
                 ),
               ),
               const SizedBox(height: 6),
               Text(
-                '$language newspaper • Reviewed today',
+                '$language newspaper • $articleCount '
+                '${articleCount == 1 ? 'briefing' : 'briefings'} today',
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 14,
@@ -174,17 +169,52 @@ class NewspaperBriefingsPage extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.newspaper_rounded, color: color, size: 47),
+          const SizedBox(height: 16),
+          const Text(
+            'No briefings available',
+            style: TextStyle(
+              color: AppColors.darkNavy,
+              fontSize: 21,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'New stories from $newspaperName will appear here when they are added.',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
+          ),
+          const SizedBox(height: 20),
+          OutlinedButton.icon(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            icon: const Icon(Icons.arrow_back_rounded),
+            label: const Text('View other newspapers'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _BriefingCard extends StatelessWidget {
-  const _BriefingCard({
-    required this.briefing,
-    required this.newspaperName,
-    required this.color,
-  });
+  const _BriefingCard({required this.article, required this.color});
 
-  final _Briefing briefing;
-  final String newspaperName;
+  final NewsArticle article;
   final Color color;
 
   @override
@@ -197,18 +227,12 @@ class _BriefingCard extends StatelessWidget {
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => ArticleDetailPage(
-                newspaperName: newspaperName,
-                category: briefing.category,
-                title: briefing.title,
-                summary: briefing.summary,
-                readingTime: briefing.readingTime,
-                accentColor: color,
-              ),
+              builder: (context) => ArticleDetailPage(article: article),
             ),
           );
         },
         child: Container(
+          constraints: const BoxConstraints(minHeight: 235),
           padding: const EdgeInsets.all(22),
           decoration: BoxDecoration(
             border: Border.all(color: AppColors.border),
@@ -218,7 +242,7 @@ class _BriefingCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                briefing.category,
+                article.category,
                 style: TextStyle(
                   color: color,
                   fontSize: 11,
@@ -228,7 +252,7 @@ class _BriefingCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                briefing.title,
+                article.title,
                 style: const TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 18,
@@ -238,14 +262,16 @@ class _BriefingCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                briefing.summary,
+                article.summary,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 14,
                   height: 1.5,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 18),
               Row(
                 children: [
                   const Icon(
@@ -255,7 +281,7 @@ class _BriefingCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    briefing.readingTime,
+                    article.readingTime,
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,
@@ -280,18 +306,4 @@ class _BriefingCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _Briefing {
-  const _Briefing({
-    required this.category,
-    required this.title,
-    required this.summary,
-    required this.readingTime,
-  });
-
-  final String category;
-  final String title;
-  final String summary;
-  final String readingTime;
 }

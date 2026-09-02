@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
+import 'package:newsllm/features/news/data/mock_news_repository.dart';
+import 'package:newsllm/features/news/domain/models/news_article.dart';
 
 class CategoryNewsPage extends StatelessWidget {
   const CategoryNewsPage({super.key, required this.category});
 
   final String category;
 
+  List<NewsArticle> get _articles {
+    if (category.toLowerCase() == 'today') {
+      return MockNewsRepository.articles;
+    }
+
+    return MockNewsRepository.articlesByCategory(category);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final articles = _articlesForCategory(category);
+    final articles = _articles;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -26,40 +36,53 @@ class CategoryNewsPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_rounded),
         ),
         title: Text(
-          category,
+          category == 'Today' ? 'Today’s briefings' : category,
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1150),
+            constraints: const BoxConstraints(maxWidth: 1050),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeader(context, articles.length),
-                const SizedBox(height: 28),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final columns = constraints.maxWidth >= 800 ? 2 : 1;
-                    const spacing = 18.0;
-                    final cardWidth =
-                        (constraints.maxWidth - spacing * (columns - 1)) /
-                        columns;
+                _buildHeader(articles.length),
+                const SizedBox(height: 24),
+                if (articles.isEmpty)
+                  _buildEmptyState()
+                else
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final columns = constraints.maxWidth >= 760 ? 2 : 1;
+                      final spacing = 16.0;
+                      final cardWidth =
+                          (constraints.maxWidth - spacing * (columns - 1)) /
+                          columns;
 
-                    return Wrap(
-                      spacing: spacing,
-                      runSpacing: spacing,
-                      children: articles.map((article) {
-                        return SizedBox(
-                          width: cardWidth,
-                          child: _ArticleCard(article: article),
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
+                      return Wrap(
+                        spacing: spacing,
+                        runSpacing: spacing,
+                        children: articles.map((article) {
+                          return SizedBox(
+                            width: cardWidth,
+                            child: _ArticleCard(
+                              article: article,
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ArticleDetailPage(article: article),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
               ],
             ),
           ),
@@ -68,36 +91,53 @@ class CategoryNewsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, int articleCount) {
+  Widget _buildHeader(int articleCount) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.all(26),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [AppColors.primary, AppColors.darkNavy],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(22),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          const Icon(Icons.newspaper_rounded, color: Colors.white, size: 34),
-          const SizedBox(height: 20),
-          Text(
-            '$category news',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
+          Container(
+            width: 58,
+            height: 58,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(16),
             ),
+            child: Icon(_categoryIcon(category), color: Colors.white, size: 29),
           ),
-          const SizedBox(height: 9),
-          Text(
-            '$articleCount exam-focused briefings selected for today.',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.82),
-              fontSize: 15,
+          const SizedBox(width: 17),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  category == 'Today' ? 'Today’s news' : category,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 7),
+                Text(
+                  '$articleCount exam-focused '
+                  '${articleCount == 1 ? 'briefing' : 'briefings'} available',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.78),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -105,245 +145,113 @@ class CategoryNewsPage extends StatelessWidget {
     );
   }
 
-  List<_CategoryArticle> _articlesForCategory(String selectedCategory) {
-    switch (selectedCategory) {
-      case 'National':
-        return const [
-          _CategoryArticle(
-            newspaperName: 'The Daily Star',
-            category: 'NATIONAL',
-            title: 'Bangladesh introduces a national green growth roadmap',
-            summary:
-                'The roadmap prioritises renewable energy, sustainable jobs and climate-resilient infrastructure.',
-            readingTime: '4 min read',
-            accentColor: AppColors.primary,
+  Widget _buildEmptyState() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 52),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: const Column(
+        children: [
+          Icon(
+            Icons.article_outlined,
+            size: 48,
+            color: AppColors.textSecondary,
           ),
-          _CategoryArticle(
-            newspaperName: 'Prothom Alo',
-            category: 'NATIONAL',
-            title: 'New education programme targets digital learning',
-            summary:
-                'The programme aims to improve access to digital resources and modern classroom tools.',
-            readingTime: '3 min read',
-            accentColor: Color(0xFF059669),
+          SizedBox(height: 16),
+          Text(
+            'No briefings available',
+            style: TextStyle(
+              color: AppColors.darkNavy,
+              fontSize: 21,
+              fontWeight: FontWeight.w800,
+            ),
           ),
-          _CategoryArticle(
-            newspaperName: 'Dhaka Tribune',
-            category: 'NATIONAL',
-            title: 'Public transport improvement plan announced',
-            summary:
-                'The new plan focuses on safer journeys, better routes and reduced urban congestion.',
-            readingTime: '4 min read',
-            accentColor: Color(0xFF7C3AED),
+          SizedBox(height: 8),
+          Text(
+            'New exam-focused stories will appear here when they are added.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.textSecondary, height: 1.5),
           ),
-          _CategoryArticle(
-            newspaperName: 'The Business Standard',
-            category: 'NATIONAL',
-            title: 'Local development projects receive new funding',
-            summary:
-                'The projects will support infrastructure and essential public services across several districts.',
-            readingTime: '3 min read',
-            accentColor: Color(0xFFD97706),
-          ),
-        ];
+        ],
+      ),
+    );
+  }
 
-      case 'International':
-        return const [
-          _CategoryArticle(
-            newspaperName: 'BBC News',
-            category: 'INTERNATIONAL',
-            title: 'Regional leaders discuss stronger economic cooperation',
-            summary:
-                'The meeting highlighted trade, technology and cross-border collaboration.',
-            readingTime: '4 min read',
-            accentColor: Color(0xFFDC2626),
-          ),
-          _CategoryArticle(
-            newspaperName: 'Reuters',
-            category: 'INTERNATIONAL',
-            title: 'Countries agree to expand climate partnerships',
-            summary:
-                'The agreement supports renewable energy investment and shared environmental research.',
-            readingTime: '3 min read',
-            accentColor: AppColors.primary,
-          ),
-          _CategoryArticle(
-            newspaperName: 'Al Jazeera',
-            category: 'INTERNATIONAL',
-            title: 'Global food-security discussions continue',
-            summary:
-                'Officials examined agricultural production, supply chains and rising food costs.',
-            readingTime: '4 min read',
-            accentColor: Color(0xFFB45309),
-          ),
-          _CategoryArticle(
-            newspaperName: 'The Guardian',
-            category: 'INTERNATIONAL',
-            title: 'New international education initiative launched',
-            summary:
-                'The initiative will expand scholarships and academic cooperation between participating countries.',
-            readingTime: '3 min read',
-            accentColor: Color(0xFF059669),
-          ),
-        ];
-
-      case 'Business':
-        return const [
-          _CategoryArticle(
-            newspaperName: 'The Business Standard',
-            category: 'BUSINESS',
-            title: 'Digital payment services continue to expand',
-            summary:
-                'New services aim to make everyday transactions faster, safer and more accessible.',
-            readingTime: '3 min read',
-            accentColor: Color(0xFFD97706),
-          ),
-          _CategoryArticle(
-            newspaperName: 'Financial Express',
-            category: 'BUSINESS',
-            title: 'Small businesses increase their use of technology',
-            summary:
-                'Digital tools are helping businesses manage sales, customers and financial records.',
-            readingTime: '4 min read',
-            accentColor: AppColors.primary,
-          ),
-          _CategoryArticle(
-            newspaperName: 'Dhaka Tribune',
-            category: 'BUSINESS',
-            title: 'Export sector explores new international markets',
-            summary:
-                'Industry leaders are working to diversify products and strengthen trade relationships.',
-            readingTime: '3 min read',
-            accentColor: Color(0xFF7C3AED),
-          ),
-          _CategoryArticle(
-            newspaperName: 'The Daily Star',
-            category: 'BUSINESS',
-            title: 'Green investment gains attention from local companies',
-            summary:
-                'Businesses are considering cleaner technology and more sustainable production methods.',
-            readingTime: '4 min read',
-            accentColor: Color(0xFF059669),
-          ),
-        ];
-
+  IconData _categoryIcon(String value) {
+    switch (value.toUpperCase()) {
+      case 'TODAY':
+        return Icons.today_outlined;
+      case 'NATIONAL':
+        return Icons.account_balance_outlined;
+      case 'INTERNATIONAL':
+        return Icons.public_rounded;
+      case 'BUSINESS':
+        return Icons.trending_up_rounded;
+      case 'SCIENCE & TECH':
+        return Icons.memory_rounded;
       default:
-        return const [
-          _CategoryArticle(
-            newspaperName: 'The Daily Star',
-            category: 'SCIENCE & TECH',
-            title: 'Satellite data improves national disaster monitoring',
-            summary:
-                'Updated technology will help authorities issue faster and more accurate warnings.',
-            readingTime: '4 min read',
-            accentColor: AppColors.primary,
-          ),
-          _CategoryArticle(
-            newspaperName: 'BBC Science',
-            category: 'SCIENCE & TECH',
-            title: 'Researchers develop more efficient solar technology',
-            summary:
-                'The research could improve renewable-energy production while reducing costs.',
-            readingTime: '4 min read',
-            accentColor: Color(0xFF059669),
-          ),
-          _CategoryArticle(
-            newspaperName: 'Reuters Technology',
-            category: 'SCIENCE & TECH',
-            title: 'Artificial intelligence supports medical research',
-            summary:
-                'New tools are helping researchers examine complex medical information more efficiently.',
-            readingTime: '3 min read',
-            accentColor: Color(0xFF7C3AED),
-          ),
-          _CategoryArticle(
-            newspaperName: 'Dhaka Tribune',
-            category: 'SCIENCE & TECH',
-            title: 'Digital public services reach more communities',
-            summary:
-                'Expanded online platforms are improving access to important government information.',
-            readingTime: '3 min read',
-            accentColor: Color(0xFFD97706),
-          ),
-        ];
+        return Icons.article_outlined;
     }
   }
 }
 
 class _ArticleCard extends StatelessWidget {
-  const _ArticleCard({required this.article});
+  const _ArticleCard({required this.article, required this.onTap});
 
-  final _CategoryArticle article;
+  final NewsArticle article;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(19),
+      borderRadius: BorderRadius.circular(18),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => ArticleDetailPage(
-                newspaperName: article.newspaperName,
-                category: article.category,
-                title: article.title,
-                summary: article.summary,
-                readingTime: article.readingTime,
-                accentColor: article.accentColor,
-              ),
-            ),
-          );
-        },
+        onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.all(22),
+          constraints: const BoxConstraints(minHeight: 245),
+          padding: const EdgeInsets.all(21),
           decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
             border: Border.all(color: AppColors.border),
-            borderRadius: BorderRadius.circular(19),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              Wrap(
+                spacing: 9,
+                runSpacing: 6,
                 children: [
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
+                  Text(
+                    article.category,
+                    style: TextStyle(
                       color: article.accentColor,
-                      shape: BoxShape.circle,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.6,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      article.newspaperName,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  Text(
+                    article.newspaperName,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 17),
-              Text(
-                article.category,
-                style: TextStyle(
-                  color: article.accentColor,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.7,
-                ),
-              ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 13),
               Text(
                 article.title,
                 style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 18,
+                  color: AppColors.darkNavy,
+                  fontSize: 19,
                   fontWeight: FontWeight.w800,
                   height: 1.3,
                 ),
@@ -351,18 +259,21 @@ class _ArticleCard extends StatelessWidget {
               const SizedBox(height: 10),
               Text(
                 article.summary,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: AppColors.textSecondary,
+                  fontSize: 14,
                   height: 1.5,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 18),
               Row(
                 children: [
                   const Icon(
                     Icons.schedule_rounded,
+                    size: 16,
                     color: AppColors.textSecondary,
-                    size: 17,
                   ),
                   const SizedBox(width: 6),
                   Text(
@@ -377,10 +288,11 @@ class _ArticleCard extends StatelessWidget {
                     'Read briefing',
                     style: TextStyle(
                       color: article.accentColor,
+                      fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(width: 5),
+                  const SizedBox(width: 4),
                   Icon(
                     Icons.arrow_forward_rounded,
                     color: article.accentColor,
@@ -394,22 +306,4 @@ class _ArticleCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _CategoryArticle {
-  const _CategoryArticle({
-    required this.newspaperName,
-    required this.category,
-    required this.title,
-    required this.summary,
-    required this.readingTime,
-    required this.accentColor,
-  });
-
-  final String newspaperName;
-  final String category;
-  final String title;
-  final String summary;
-  final String readingTime;
-  final Color accentColor;
 }

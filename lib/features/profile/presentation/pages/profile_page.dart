@@ -3,6 +3,8 @@ import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/features/bookmarks/presentation/pages/bookmarks_page.dart';
 import 'package:newsllm/features/progress/presentation/pages/exam_history_page.dart';
+import 'package:newsllm/core/navigation/main_navigation_bar.dart';
+import 'package:newsllm/features/settings/presentation/pages/settings_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -46,6 +48,9 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      bottomNavigationBar: const MainNavigationBar(
+        currentDestination: MainDestination.profile,
+      ),
       appBar: AppBar(
         backgroundColor: Colors.white,
         foregroundColor: AppColors.darkNavy,
@@ -295,20 +300,19 @@ class ProfilePage extends StatelessWidget {
             },
           ),
           const Divider(),
-          const ListTile(
+          ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: Icon(Icons.language_rounded),
-            title: Text('Preferred language'),
-            subtitle: Text('English'),
-            trailing: Icon(Icons.chevron_right_rounded),
-          ),
-          const Divider(),
-          const ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: Icon(Icons.notifications_outlined),
-            title: Text('Notifications'),
-            subtitle: Text('News and exam reminders'),
-            trailing: Icon(Icons.chevron_right_rounded),
+            leading: const Icon(Icons.settings_outlined),
+            title: const Text('Settings'),
+            subtitle: Text(
+              '${AppSession.instance.preferredLanguage} • Notifications and reminders',
+            ),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
+              );
+            },
           ),
           const Divider(),
           ListTile(
