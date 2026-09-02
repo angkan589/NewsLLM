@@ -83,7 +83,7 @@ class HomeContentSections extends StatelessWidget {
                 ],
               )
             else
-                Row(
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(child: _buildContinueLearning(context)),

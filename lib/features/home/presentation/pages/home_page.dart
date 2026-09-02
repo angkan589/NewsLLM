@@ -3,6 +3,11 @@ import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/features/home/presentation/widgets/home_content_sections.dart';
 import 'package:newsllm/features/home/presentation/widgets/newspaper_sources_section.dart';
 import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
+import 'package:newsllm/features/quiz/presentation/pages/daily_quiz_page.dart';
+import 'package:newsllm/features/home/presentation/pages/category_news_page.dart';
+import 'package:newsllm/features/auth/presentation/pages/auth_page.dart';
+import 'package:newsllm/features/search/presentation/pages/search_page.dart';
+import 'package:newsllm/core/session/app_session.dart' as app_session;
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -76,16 +81,20 @@ class HomePage extends StatelessWidget {
         ),
         if (!isCompact) ...[
           const SizedBox(width: 48),
-          _navButton('Today', true),
-          _navButton('National', false),
-          _navButton('International', false),
-          _navButton('Business', false),
-          _navButton('Science & Tech', false),
+          _navButton(context, 'Today', true),
+          _navButton(context, 'National', false),
+          _navButton(context, 'International', false),
+          _navButton(context, 'Business', false),
+          _navButton(context, 'Science & Tech', false),
         ],
         const Spacer(),
         if (!isCompact) ...[
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const SearchPage()),
+              );
+            },
             tooltip: 'Search',
             icon: const Icon(Icons.search),
           ),
@@ -105,14 +114,51 @@ class HomePage extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        OutlinedButton(onPressed: () {}, child: const Text('Sign in')),
+        Builder(
+          builder: (context) {
+            final session = app_session.AppSession.instance;
+
+            if (session.name.isNotEmpty || session.email.isNotEmpty) {
+              return OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const AuthPage(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.person_outline_rounded),
+                label: Text(session.name),
+              );
+            }
+
+            return OutlinedButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const AuthPage(),
+                  ),
+                );
+              },
+              child: const Text('Sign in'),
+            );
+          },
+        ),
       ],
     );
   }
 
-  Widget _navButton(String label, bool selected) {
+  Widget _navButton(BuildContext context, String label, bool selected) {
     return TextButton(
-      onPressed: () {},
+      onPressed: selected
+          ? null
+          : () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CategoryNewsPage(category: label),
+                ),
+              );
+            },
       child: Text(
         label,
         style: TextStyle(
@@ -365,7 +411,13 @@ class HomePage extends StatelessWidget {
               ),
               const SizedBox(height: 22),
               FilledButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const DailyQuizPage(),
+                    ),
+                  );
+                },
                 style: FilledButton.styleFrom(
                   backgroundColor: const Color(0xFF6EE7B7),
                   foregroundColor: AppColors.darkNavy,

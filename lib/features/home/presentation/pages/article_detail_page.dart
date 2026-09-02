@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
+import 'package:newsllm/core/session/app_session.dart';
+import 'package:newsllm/features/auth/presentation/pages/auth_page.dart'
+    as auth_page;
 
 class ArticleDetailPage extends StatefulWidget {
   const ArticleDetailPage({
@@ -27,24 +30,23 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
   bool _isBookmarked = false;
   int? _selectedAnswer;
   bool _answerChecked = false;
+  @override
+void initState() {
+  super.initState();
+
+  _isBookmarked = AppSession.instance.isArticleBookmarked(
+    widget.title,
+  );
+}
 
   final List<Map<String, String>> _facts = const [
-    {
-      'label': 'WHO',
-      'value': 'Government agencies and relevant stakeholders',
-    },
+    {'label': 'WHO', 'value': 'Government agencies and relevant stakeholders'},
     {
       'label': 'WHAT',
       'value': 'A new national initiative and implementation roadmap',
     },
-    {
-      'label': 'WHEN',
-      'value': 'Announced in today’s current-affairs coverage',
-    },
-    {
-      'label': 'WHERE',
-      'value': 'Bangladesh',
-    },
+    {'label': 'WHEN', 'value': 'Announced in today’s current-affairs coverage'},
+    {'label': 'WHERE', 'value': 'Bangladesh'},
     {
       'label': 'WHY',
       'value': 'To support sustainable and inclusive development',
@@ -114,15 +116,9 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          flex: 7,
-                          child: _buildArticleContent(),
-                        ),
+                        Expanded(flex: 7, child: _buildArticleContent()),
                         const SizedBox(width: 20),
-                        Expanded(
-                          flex: 4,
-                          child: _buildQuickRevision(),
-                        ),
+                        Expanded(flex: 4, child: _buildQuickRevision()),
                       ],
                     );
                   },
@@ -137,22 +133,69 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
     );
   }
 
-  void _toggleBookmark() {
-    setState(() {
-      _isBookmarked = !_isBookmarked;
-    });
+  Future<void> _toggleBookmark() async {
+  if (!AppSession.instance.isSignedIn) {
+    final shouldSignIn = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Sign in to save'),
+          content: const Text(
+            'You can read every briefing and take every exam as a guest. '
+            'Sign in is only required to save bookmarks and learning progress.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+              child: const Text('Continue as guest'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+              child: const Text('Sign in'),
+            ),
+          ],
+        );
+      },
+    );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          _isBookmarked
-              ? 'Briefing saved to bookmarks'
-              : 'Briefing removed from bookmarks',
-        ),
-        duration: const Duration(seconds: 2),
+    if (shouldSignIn != true || !mounted) {
+      return;
+    }
+
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const auth_page.AuthPage(),
       ),
     );
+
+    if (!mounted || !AppSession.instance.isSignedIn) {
+      return;
+    }
   }
+
+  final bookmarked = AppSession.instance.toggleArticleBookmark(
+    widget.title,
+  );
+
+  setState(() {
+    _isBookmarked = bookmarked;
+  });
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        bookmarked
+            ? 'Briefing saved to bookmarks'
+            : 'Briefing removed from bookmarks',
+      ),
+      duration: const Duration(seconds: 2),
+    ),
+  );
+}
 
   Widget _buildHero(bool isMobile) {
     return Container(
@@ -160,10 +203,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
       padding: EdgeInsets.all(isMobile ? 22 : 34),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            widget.accentColor,
-            AppColors.darkNavy,
-          ],
+          colors: [widget.accentColor, AppColors.darkNavy],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -194,7 +234,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
           Text(
             widget.summary,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.82),
+              color: Colors.white.withValues(alpha: 0.82),
               fontSize: isMobile ? 15 : 17,
               height: 1.55,
             ),
@@ -204,10 +244,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
             spacing: 20,
             runSpacing: 10,
             children: [
-              _buildHeroInfo(
-                Icons.schedule_rounded,
-                widget.readingTime,
-              ),
+              _buildHeroInfo(Icons.schedule_rounded, widget.readingTime),
               _buildHeroInfo(
                 Icons.auto_awesome_rounded,
                 'AI-assisted exam summary',
@@ -221,10 +258,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
 
   Widget _buildBadge(String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 7,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
@@ -245,18 +279,9 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          icon,
-          color: Colors.white70,
-          size: 18,
-        ),
+        Icon(icon, color: Colors.white70, size: 18),
         const SizedBox(width: 7),
-        Text(
-          text,
-          style: const TextStyle(
-            color: Colors.white70,
-          ),
-        ),
+        Text(text, style: const TextStyle(color: Colors.white70)),
       ],
     );
   }
@@ -324,9 +349,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 14),
             decoration: const BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: AppColors.border),
-              ),
+              border: Border(bottom: BorderSide(color: AppColors.border)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -393,10 +416,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                   },
             style: FilledButton.styleFrom(
               backgroundColor: widget.accentColor,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 22,
-                vertical: 15,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 15),
             ),
             child: const Text('Check answer'),
           ),
@@ -429,7 +449,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
 
     if (isSelected) {
       borderColor = widget.accentColor;
-      backgroundColor = widget.accentColor.withOpacity(0.06);
+      backgroundColor = widget.accentColor.withValues(alpha: 0.06);
     }
 
     if (isCorrect) {
@@ -467,23 +487,21 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                 isCorrect
                     ? Icons.check_circle_rounded
                     : isWrong
-                        ? Icons.cancel_rounded
-                        : isSelected
-                            ? Icons.radio_button_checked_rounded
-                            : Icons.radio_button_off_rounded,
+                    ? Icons.cancel_rounded
+                    : isSelected
+                    ? Icons.radio_button_checked_rounded
+                    : Icons.radio_button_off_rounded,
                 color: isCorrect
                     ? AppColors.accent
                     : isWrong
-                        ? const Color(0xFFDC2626)
-                        : isSelected
-                            ? widget.accentColor
-                            : AppColors.textSecondary,
+                    ? const Color(0xFFDC2626)
+                    : isSelected
+                    ? widget.accentColor
+                    : AppColors.textSecondary,
                 size: 21,
               ),
               const SizedBox(width: 11),
-              Expanded(
-                child: Text(_quizOptions[index]),
-              ),
+              Expanded(child: Text(_quizOptions[index])),
             ],
           ),
         ),
@@ -520,11 +538,7 @@ class _SectionCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                icon,
-                color: iconColor,
-                size: 23,
-              ),
+              Icon(icon, color: iconColor, size: 23),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -547,19 +561,14 @@ class _SectionCard extends StatelessWidget {
 }
 
 class _Keyword extends StatelessWidget {
-  const _Keyword({
-    required this.label,
-  });
+  const _Keyword({required this.label});
 
   final String label;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: const Color(0xFFEFF6FF),
         borderRadius: BorderRadius.circular(30),

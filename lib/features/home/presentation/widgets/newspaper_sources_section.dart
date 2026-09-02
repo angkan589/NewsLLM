@@ -113,17 +113,15 @@ class _NewspaperSourcesSectionState extends State<NewspaperSourcesSection> {
         Text(
           'Today’s newspaper desk',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppColors.darkNavy,
-                fontSize: isMobile ? 21 : 24,
-                fontWeight: FontWeight.w700,
-              ),
+            color: AppColors.darkNavy,
+            fontSize: isMobile ? 21 : 24,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         const SizedBox(height: 6),
         const Text(
           'Swipe through today’s newspapers and explore the briefings.',
-          style: TextStyle(
-            color: AppColors.textSecondary,
-          ),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
       ],
     );
@@ -142,10 +140,7 @@ class _NewspaperSourcesSectionState extends State<NewspaperSourcesSection> {
         ),
         const SizedBox(width: 12),
         Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 8,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: const Color(0xFFD1FAE5),
             borderRadius: BorderRadius.circular(30),
@@ -166,11 +161,7 @@ class _NewspaperSourcesSectionState extends State<NewspaperSourcesSection> {
     if (isMobile) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          heading,
-          const SizedBox(height: 14),
-          controls,
-        ],
+        children: [heading, const SizedBox(height: 14), controls],
       );
     }
 
@@ -185,10 +176,7 @@ class _NewspaperSourcesSectionState extends State<NewspaperSourcesSection> {
 }
 
 class _NewspaperCard extends StatelessWidget {
-  const _NewspaperCard({
-    required this.source,
-    required this.width,
-  });
+  const _NewspaperCard({required this.source, required this.width});
 
   final _NewspaperSource source;
   final double width;
@@ -203,17 +191,17 @@ class _NewspaperCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () {
-  Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (context) => NewspaperBriefingsPage(
-        newspaperName: source.name,
-        shortName: source.shortName,
-        language: source.language,
-        color: source.color,
-      ),
-    ),
-  );
-},
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => NewspaperBriefingsPage(
+                  newspaperName: source.name,
+                  shortName: source.shortName,
+                  language: source.language,
+                  color: source.color,
+                ),
+              ),
+            );
+          },
           child: Ink(
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.border),
@@ -226,7 +214,7 @@ class _NewspaperCard extends StatelessWidget {
                   child: Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: source.color.withOpacity(0.08),
+                      color: source.color.withValues(alpha: 0.08),
                     ),
                     child: Stack(
                       children: [
@@ -358,10 +346,7 @@ class _NewspaperCard extends StatelessWidget {
 }
 
 class _CarouselButton extends StatelessWidget {
-  const _CarouselButton({
-    required this.icon,
-    required this.onPressed,
-  });
+  const _CarouselButton({required this.icon, required this.onPressed});
 
   final IconData icon;
   final VoidCallback onPressed;
