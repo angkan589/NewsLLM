@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:newsllm/features/quiz/domain/models/quiz_models.dart';
 
 class AppSession extends ChangeNotifier {
@@ -11,6 +11,8 @@ class AppSession extends ChangeNotifier {
   String _email = '';
 
   String _preferredLanguage = 'English';
+  ThemeMode _themeMode = ThemeMode.light;
+
   bool _newsNotificationsEnabled = true;
   bool _examRemindersEnabled = true;
   bool _dailyBriefingReminderEnabled = true;
@@ -19,10 +21,16 @@ class AppSession extends ChangeNotifier {
   final List<QuizResult> _quizResults = [];
 
   bool get isSignedIn => _isSignedIn;
+
   String get name => _name;
+
   String get email => _email;
 
   String get preferredLanguage => _preferredLanguage;
+
+  ThemeMode get themeMode => _themeMode;
+
+  bool get isDarkMode => _themeMode == ThemeMode.dark;
 
   bool get newsNotificationsEnabled => _newsNotificationsEnabled;
 
@@ -73,8 +81,45 @@ class AppSession extends ChangeNotifier {
     notifyListeners();
   }
 
+  void signOut() {
+    _isSignedIn = false;
+    _name = '';
+    _email = '';
+
+    // Language and theme remain device preferences after sign-out.
+    _newsNotificationsEnabled = true;
+    _examRemindersEnabled = true;
+    _dailyBriefingReminderEnabled = true;
+
+    _bookmarkedArticleTitles.clear();
+    _quizResults.clear();
+
+    notifyListeners();
+  }
+
   void updatePreferredLanguage(String language) {
+    if (_preferredLanguage == language) {
+      return;
+    }
+
     _preferredLanguage = language;
+    notifyListeners();
+  }
+
+  void updateThemeMode(ThemeMode mode) {
+    if (_themeMode == mode) {
+      return;
+    }
+
+    _themeMode = mode;
+    notifyListeners();
+  }
+
+  void toggleTheme() {
+    _themeMode = _themeMode == ThemeMode.dark
+        ? ThemeMode.light
+        : ThemeMode.dark;
+
     notifyListeners();
   }
 
@@ -121,22 +166,6 @@ class AppSession extends ChangeNotifier {
     );
 
     _quizResults.add(result);
-    notifyListeners();
-  }
-
-  void signOut() {
-    _isSignedIn = false;
-    _name = '';
-    _email = '';
-
-    _preferredLanguage = 'English';
-    _newsNotificationsEnabled = true;
-    _examRemindersEnabled = true;
-    _dailyBriefingReminderEnabled = true;
-
-    _bookmarkedArticleTitles.clear();
-    _quizResults.clear();
-
     notifyListeners();
   }
 

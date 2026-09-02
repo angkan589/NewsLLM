@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:newsllm/core/navigation/main_navigation_bar.dart';
+import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/core/theme/app_theme.dart';
 import 'package:newsllm/features/home/presentation/pages/home_page.dart';
 
@@ -12,23 +13,29 @@ class NewsLLMApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'NewsLLM',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+    return AnimatedBuilder(
+      animation: AppSession.instance,
       builder: (context, child) {
-        return NotificationListener<ScrollNotification>(
-          onNotification: (notification) {
-            NavigationVisibilityController.instance.handleScrollNotification(
-              notification,
-            );
+        return MaterialApp(
+          title: 'NewsLLM',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: AppSession.instance.themeMode,
+          builder: (context, child) {
+            return NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                NavigationVisibilityController.instance
+                    .handleScrollNotification(notification);
 
-            return false;
+                return false;
+              },
+              child: child ?? const SizedBox.shrink(),
+            );
           },
-          child: child ?? const SizedBox.shrink(),
+          home: const HomePage(),
         );
       },
-      home: const HomePage(),
     );
   }
 }

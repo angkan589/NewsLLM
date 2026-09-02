@@ -10,6 +10,7 @@ import 'package:newsllm/features/search/presentation/pages/search_page.dart';
 import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/features/profile/presentation/pages/profile_page.dart';
 import 'package:newsllm/core/navigation/main_navigation_bar.dart';
+import 'package:newsllm/core/theme/theme_context.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -20,7 +21,7 @@ class HomePage extends StatelessWidget {
     final isCompact = screenWidth < 900;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.pageBackground,
       bottomNavigationBar: const MainNavigationBar(
         currentDestination: MainDestination.home,
       ),
@@ -76,7 +77,7 @@ class HomePage extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-          width: isCompact ? 155 : 230,
+          width: isCompact ? 105 : 230,
           height: 62,
           child: Image.asset(
             'assets/images/logo.png',
@@ -105,18 +106,58 @@ class HomePage extends StatelessWidget {
           ),
           const SizedBox(width: 8),
         ],
-        Container(
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: const Color(0xFFE8EDF5),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Row(
-            children: [
-              _LanguageOption(label: 'EN', selected: true),
-              _LanguageOption(label: 'বা', selected: false),
-            ],
-          ),
+        AnimatedBuilder(
+          animation: AppSession.instance,
+          builder: (context, child) {
+            final session = AppSession.instance;
+
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    children: [
+                      _LanguageOption(
+                        label: 'EN',
+                        selected: session.preferredLanguage == 'English',
+                        onTap: () {
+                          session.updatePreferredLanguage('English');
+                        },
+                      ),
+                      _LanguageOption(
+                        label: 'বা',
+                        selected: session.preferredLanguage == 'বাংলা',
+                        onTap: () {
+                          session.updatePreferredLanguage('বাংলা');
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  tooltip: session.isDarkMode
+                      ? 'Use light theme'
+                      : 'Use dark theme',
+                  onPressed: () {
+                    session.toggleTheme();
+                  },
+                  icon: Icon(
+                    session.isDarkMode
+                        ? Icons.light_mode_outlined
+                        : Icons.dark_mode_outlined,
+                  ),
+                ),
+              ],
+            );
+          },
         ),
         const SizedBox(width: 12),
         AnimatedBuilder(
@@ -200,7 +241,7 @@ class HomePage extends StatelessWidget {
         Text(
           'Good morning. Here’s what matters today.',
           style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-            color: AppColors.darkNavy,
+            color: context.primaryTextColor,
             fontSize: isCompact ? 34 : 46,
             height: 1.1,
             letterSpacing: -1,
@@ -467,25 +508,38 @@ class HomePage extends StatelessWidget {
 }
 
 class _LanguageOption extends StatelessWidget {
-  const _LanguageOption({required this.label, required this.selected});
+  const _LanguageOption({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
 
   final String label;
   final bool selected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      decoration: BoxDecoration(
-        color: selected ? Colors.white : Colors.transparent,
+    return Material(
+      color: selected
+          ? Theme.of(context).colorScheme.surface
+          : Colors.transparent,
+      borderRadius: BorderRadius.circular(7),
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(7),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: selected ? AppColors.primary : AppColors.textSecondary,
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: selected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ),
       ),
     );

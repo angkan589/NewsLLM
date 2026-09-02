@@ -226,14 +226,14 @@ class QuizHubPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       bottomNavigationBar: const MainNavigationBar(
         currentDestination: MainDestination.quiz,
       ),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.darkNavy,
-        surfaceTintColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        surfaceTintColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
           tooltip: 'Back',
@@ -343,7 +343,7 @@ class QuizHubPage extends StatelessWidget {
                   },
                   style: FilledButton.styleFrom(
                     backgroundColor: const Color(0xFF6EE7B7),
-                    foregroundColor: AppColors.darkNavy,
+                    foregroundColor: Theme.of(context).colorScheme.onSurface,
                   ),
                   icon: const Icon(Icons.play_arrow_rounded),
                   label: const Text('Start daily quiz'),

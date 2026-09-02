@@ -102,12 +102,12 @@ class _QuizPageState extends State<QuizPage> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       bottomNavigationBar: widget.bottomNavigationBar,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.darkNavy,
-        surfaceTintColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        surfaceTintColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
           tooltip: 'Back',
@@ -359,7 +359,7 @@ class _QuizPageState extends State<QuizPage> {
 
   Widget _buildEmptyQuiz() {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         leading: IconButton(
           tooltip: 'Back',

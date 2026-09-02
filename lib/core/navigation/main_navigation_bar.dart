@@ -7,6 +7,7 @@ import 'package:newsllm/features/home/presentation/pages/home_page.dart';
 import 'package:newsllm/features/profile/presentation/pages/profile_page.dart';
 import 'package:newsllm/features/quiz/presentation/pages/quiz_hub_page.dart';
 import 'package:newsllm/features/search/presentation/pages/search_page.dart';
+import 'package:newsllm/core/theme/theme_context.dart';
 
 enum MainDestination { home, search, quiz, saved, profile }
 
@@ -180,7 +181,7 @@ class MainNavigationBar extends StatelessWidget {
                       constraints: const BoxConstraints(maxWidth: 720),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.elevatedSurfaceColor,
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(color: const Color(0xFFE2E8F0)),
                           boxShadow: const [

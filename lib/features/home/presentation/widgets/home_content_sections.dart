@@ -1,5 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
+import 'package:newsllm/core/theme/theme_context.dart';
+import 'package:newsllm/features/auth/presentation/pages/auth_page.dart';
+import 'package:newsllm/features/fact_bank/presentation/pages/fact_bank_page.dart';
+import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
+import 'package:newsllm/features/home/presentation/pages/category_news_page.dart';
+import 'package:newsllm/features/news/data/mock_news_repository.dart';
+import 'package:newsllm/features/news/domain/models/news_article.dart';
+import 'package:newsllm/features/progress/presentation/pages/exam_history_page.dart';
+import 'package:newsllm/features/quiz/presentation/pages/quiz_hub_page.dart';
 
 class HomeContentSections extends StatelessWidget {
   const HomeContentSections({super.key});
@@ -8,6 +18,7 @@ class HomeContentSections extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final articles = MockNewsRepository.articles;
         final isCompact = constraints.maxWidth < 850;
         final newsCardWidth = isCompact
             ? constraints.maxWidth
@@ -23,46 +34,33 @@ class HomeContentSections extends StatelessWidget {
               title: 'More from today',
               subtitle: 'Short, exam-focused briefings selected for you',
               action: 'View all news',
+              onAction: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const CategoryNewsPage(category: 'Today'),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 22),
             Wrap(
               spacing: 20,
               runSpacing: 20,
-              children: [
-                _NewsCard(
+              children: articles.map((article) {
+                return _NewsCard(
                   width: newsCardWidth,
-                  icon: Icons.public,
-                  category: 'INTERNATIONAL',
-                  title:
-                      'Global leaders approve a new ocean protection framework',
-                  summary:
-                      'The agreement focuses on marine biodiversity and reducing plastic pollution.',
-                  readingTime: '3 min read',
-                  color: const Color(0xFFE0E7FF),
-                ),
-                _NewsCard(
-                  width: newsCardWidth,
-                  icon: Icons.trending_up,
-                  category: 'BUSINESS',
-                  title:
-                      'Regional trade cooperation receives a new digital boost',
-                  summary:
-                      'A shared platform aims to simplify cross-border documentation and payments.',
-                  readingTime: '4 min read',
-                  color: const Color(0xFFFEF3C7),
-                ),
-                _NewsCard(
-                  width: newsCardWidth,
-                  icon: Icons.rocket_launch_outlined,
-                  category: 'SCIENCE & TECH',
-                  title:
-                      'Satellite data expands Bangladesh flood-warning coverage',
-                  summary:
-                      'Improved local data will help authorities issue more targeted monsoon alerts.',
-                  readingTime: '3 min read',
-                  color: const Color(0xFFD1FAE5),
-                ),
-              ],
+                  article: article,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ArticleDetailPage(article: article),
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
             ),
             const SizedBox(height: 72),
             _buildFactBank(context, isCompact),
@@ -72,6 +70,20 @@ class HomeContentSections extends StatelessWidget {
               title: 'Keep your preparation moving',
               subtitle: 'Continue learning and understand your weekly progress',
               action: 'View progress',
+              onAction: () {
+                if (!AppSession.instance.isSignedIn) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const AuthPage()),
+                  );
+                  return;
+                }
+
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const ExamHistoryPage(),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 22),
             if (isCompact)
@@ -143,49 +155,71 @@ class HomeContentSections extends StatelessWidget {
           title: 'Explore by topic',
           subtitle: 'Choose the current-affairs area you want to study',
           action: 'All topics',
+          onAction: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const CategoryNewsPage(category: 'Today'),
+              ),
+            );
+          },
         ),
         const SizedBox(height: 20),
         Wrap(
           spacing: 12,
           runSpacing: 12,
           children: categories.map((category) {
-            return InkWell(
-              onTap: () {},
+            return Material(
+              color: context.surfaceColor,
               borderRadius: BorderRadius.circular(14),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 17,
-                  vertical: 14,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(7),
-                      decoration: BoxDecoration(
-                        color: category.color,
-                        borderRadius: BorderRadius.circular(9),
-                      ),
-                      child: Icon(
-                        category.icon,
-                        size: 18,
-                        color: AppColors.darkNavy,
-                      ),
+              child: InkWell(
+                onTap: () {
+                  final destinationCategory = switch (category.label) {
+                    'Science' || 'Technology' => 'Science & Tech',
+                    _ => category.label,
+                  };
+
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          CategoryNewsPage(category: destinationCategory),
                     ),
-                    const SizedBox(width: 10),
-                    Text(
-                      category.label,
-                      style: const TextStyle(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w600,
+                  );
+                },
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 17,
+                    vertical: 14,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: context.borderColor),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(7),
+                        decoration: BoxDecoration(
+                          color: category.color,
+                          borderRadius: BorderRadius.circular(9),
+                        ),
+                        child: Icon(
+                          category.icon,
+                          size: 18,
+                          color: AppColors.darkNavy,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 10),
+                      Text(
+                        category.label,
+                        style: TextStyle(
+                          color: context.primaryTextColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -196,23 +230,23 @@ class HomeContentSections extends StatelessWidget {
   }
 
   Widget _buildFactBank(BuildContext context, bool isCompact) {
-    final facts = [
-      const _FactData(
+    const facts = [
+      _FactData(
         number: '01',
         text:
             'Bangladesh’s green roadmap prioritises renewable energy and sustainable employment.',
       ),
-      const _FactData(
+      _FactData(
         number: '02',
         text:
             'The new ocean framework focuses on biodiversity beyond national waters.',
       ),
-      const _FactData(
+      _FactData(
         number: '03',
         text:
             'Satellite-based flood alerts will support more localised warnings.',
       ),
-      const _FactData(
+      _FactData(
         number: '04',
         text:
             'Digital trade systems reduce paperwork for regional transactions.',
@@ -223,37 +257,56 @@ class HomeContentSections extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(isCompact ? 24 : 34),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFBEB),
+        color: context.yellowTintColor,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFFDE68A)),
+        border: Border.all(
+          color: context.isDarkTheme
+              ? const Color(0xFF66501D)
+              : const Color(0xFFFDE68A),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 20,
+            runSpacing: 12,
             children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.bolt, color: Color(0xFFD97706)),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: context.isDarkTheme
+                          ? const Color(0xFF4A3714)
+                          : const Color(0xFFFEF3C7),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.bolt, color: Color(0xFFD97706)),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Today’s one-line fact bank',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: context.primaryTextColor,
+                      fontSize: 22,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Today’s one-line fact bank',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontSize: 22),
-                ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const FactBankPage(),
+                    ),
+                  );
+                },
+                child: const Text('Open fact bank'),
               ),
-              if (!isCompact)
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('Open fact bank'),
-                ),
             ],
           ),
           const SizedBox(height: 24),
@@ -274,8 +327,8 @@ class HomeContentSections extends StatelessWidget {
                   Expanded(
                     child: Text(
                       fact.text,
-                      style: const TextStyle(
-                        color: AppColors.textPrimary,
+                      style: TextStyle(
+                        color: context.primaryTextColor,
                         height: 1.5,
                         fontWeight: FontWeight.w500,
                       ),
@@ -340,7 +393,11 @@ class HomeContentSections extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           FilledButton.icon(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const QuizHubPage()),
+              );
+            },
             style: FilledButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: AppColors.darkNavy,
@@ -360,22 +417,25 @@ class HomeContentSections extends StatelessWidget {
       height: 310,
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.surfaceColor,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text(
-                'Weekly accuracy',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontSize: 20),
+              Expanded(
+                child: Text(
+                  'Weekly accuracy',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: context.primaryTextColor,
+                    fontSize: 20,
+                  ),
+                ),
               ),
-              const Spacer(),
+              const SizedBox(width: 10),
               const Text(
                 '84%',
                 style: TextStyle(
@@ -387,9 +447,9 @@ class HomeContentSections extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Up 8% from last week',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+            style: TextStyle(color: context.secondaryTextColor, fontSize: 13),
           ),
           const Spacer(),
           SizedBox(
@@ -405,6 +465,8 @@ class HomeContentSections extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: value >= 80
                             ? AppColors.accent
+                            : context.isDarkTheme
+                            ? const Color(0xFF315276)
                             : const Color(0xFFBFDBFE),
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(7),
@@ -417,20 +479,27 @@ class HomeContentSections extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Mon', style: _chartLabelStyle),
-              Text('Tue', style: _chartLabelStyle),
-              Text('Wed', style: _chartLabelStyle),
-              Text('Thu', style: _chartLabelStyle),
-              Text('Fri', style: _chartLabelStyle),
-              Text('Sat', style: _chartLabelStyle),
-              Text('Sun', style: _chartLabelStyle),
+              _chartLabel(context, 'Mon'),
+              _chartLabel(context, 'Tue'),
+              _chartLabel(context, 'Wed'),
+              _chartLabel(context, 'Thu'),
+              _chartLabel(context, 'Fri'),
+              _chartLabel(context, 'Sat'),
+              _chartLabel(context, 'Sun'),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _chartLabel(BuildContext context, String label) {
+    return Text(
+      label,
+      style: TextStyle(color: context.secondaryTextColor, fontSize: 10),
     );
   }
 
@@ -439,8 +508,9 @@ class HomeContentSections extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(isCompact ? 26 : 40),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
+        color: context.blueTintColor,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: context.borderColor),
       ),
       child: isCompact
           ? Column(
@@ -470,7 +540,7 @@ class HomeContentSections extends StatelessWidget {
           'Learn in the language that feels natural',
           textAlign: centered ? TextAlign.center : TextAlign.left,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: AppColors.darkNavy,
+            color: context.primaryTextColor,
             fontSize: 26,
           ),
         ),
@@ -478,70 +548,72 @@ class HomeContentSections extends StatelessWidget {
         Text(
           'Switch between Bangla and English summaries whenever you need.',
           textAlign: centered ? TextAlign.center : TextAlign.left,
-          style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
+          style: TextStyle(color: context.secondaryTextColor, height: 1.5),
         ),
       ],
     );
   }
 
   Widget _buildLanguageButtons() {
-    return Container(
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(13),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FilledButton(onPressed: () {}, child: const Text('English')),
-          TextButton(onPressed: () {}, child: const Text('বাংলা')),
-        ],
-      ),
+    return AnimatedBuilder(
+      animation: AppSession.instance,
+      builder: (context, child) {
+        final session = AppSession.instance;
+
+        return SegmentedButton<String>(
+          segments: const [
+            ButtonSegment<String>(value: 'English', label: Text('English')),
+            ButtonSegment<String>(value: 'বাংলা', label: Text('বাংলা')),
+          ],
+          selected: {session.preferredLanguage},
+          onSelectionChanged: (selection) {
+            session.updatePreferredLanguage(selection.first);
+          },
+          showSelectedIcon: false,
+        );
+      },
     );
   }
 
   Widget _buildFooter(BuildContext context, bool isCompact) {
+    final description = Text(
+      'Daily news. Important facts. Better preparation.',
+      textAlign: isCompact ? TextAlign.center : TextAlign.left,
+      style: TextStyle(color: context.secondaryTextColor),
+    );
+
+    final copyright = Text(
+      '© 2026 NewsLLM',
+      style: TextStyle(color: context.secondaryTextColor, fontSize: 12),
+    );
+
     return Column(
       children: [
-        const Divider(color: AppColors.border),
+        Divider(color: context.borderColor),
         const SizedBox(height: 24),
         if (isCompact)
-          const Column(
+          Column(
             children: [
-              _FooterBrand(),
-              SizedBox(height: 18),
-              Text(
-                'Daily news. Important facts. Better preparation.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-              SizedBox(height: 18),
-              Text(
-                '© 2026 NewsLLM',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
-              ),
+              const _FooterBrand(),
+              const SizedBox(height: 18),
+              description,
+              const SizedBox(height: 18),
+              copyright,
             ],
           )
         else
-          const Row(
+          Row(
             children: [
-              _FooterBrand(),
-              SizedBox(width: 22),
-              Text(
-                'Daily news. Important facts. Better preparation.',
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-              Spacer(),
+              const _FooterBrand(),
+              const SizedBox(width: 22),
+              description,
+              const Spacer(),
               Text(
                 'About   Privacy   Contact',
-                style: TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: context.secondaryTextColor),
               ),
-              SizedBox(width: 30),
-              Text(
-                '© 2026 NewsLLM',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
-              ),
+              const SizedBox(width: 30),
+              copyright,
             ],
           ),
         const SizedBox(height: 28),
@@ -554,6 +626,7 @@ class HomeContentSections extends StatelessWidget {
     required String title,
     required String subtitle,
     required String action,
+    VoidCallback? onAction,
   }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -565,19 +638,20 @@ class HomeContentSections extends StatelessWidget {
               Text(
                 title,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: AppColors.darkNavy,
+                  color: context.primaryTextColor,
                   fontSize: 25,
                 ),
               ),
               const SizedBox(height: 6),
               Text(
                 subtitle,
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: context.secondaryTextColor),
               ),
             ],
           ),
         ),
-        TextButton(onPressed: () {}, child: Text(action)),
+        const SizedBox(width: 12),
+        TextButton(onPressed: onAction, child: Text(action)),
       ],
     );
   }
@@ -586,92 +660,124 @@ class HomeContentSections extends StatelessWidget {
 class _NewsCard extends StatelessWidget {
   const _NewsCard({
     required this.width,
-    required this.icon,
-    required this.category,
-    required this.title,
-    required this.summary,
-    required this.readingTime,
-    required this.color,
+    required this.article,
+    required this.onTap,
   });
 
   final double width;
-  final IconData icon;
-  final String category;
-  final String title;
-  final String summary;
-  final String readingTime;
-  final Color color;
+  final NewsArticle article;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: width,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 125,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(19),
+      child: Material(
+        color: context.surfaceColor,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: context.borderColor),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 125,
+                width: double.infinity,
+                color: article.accentColor.withValues(alpha: 0.12),
+                child: Icon(
+                  _categoryIcon(article.category),
+                  color: article.accentColor,
+                  size: 52,
+                ),
               ),
-            ),
-            child: Icon(icon, color: AppColors.darkNavy, size: 52),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      article.category,
+                      style: TextStyle(
+                        color: article.accentColor,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.7,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      article.title,
+                      style: TextStyle(
+                        color: context.primaryTextColor,
+                        fontSize: 17,
+                        height: 1.3,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      article.summary,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: context.secondaryTextColor,
+                        height: 1.45,
+                        fontSize: 13,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.schedule_rounded,
+                          color: context.secondaryTextColor,
+                          size: 15,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          article.readingTime,
+                          style: TextStyle(
+                            color: context.secondaryTextColor,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const Spacer(),
+                        Icon(
+                          Icons.arrow_forward_rounded,
+                          color: article.accentColor,
+                          size: 18,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  category,
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.7,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 17,
-                    height: 1.3,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  summary,
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    height: 1.45,
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  readingTime,
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
+  }
+
+  IconData _categoryIcon(String category) {
+    switch (category.toUpperCase()) {
+      case 'NATIONAL':
+        return Icons.account_balance_outlined;
+      case 'INTERNATIONAL':
+        return Icons.public_rounded;
+      case 'BUSINESS':
+        return Icons.trending_up_rounded;
+      case 'SCIENCE & TECH':
+        return Icons.memory_rounded;
+      case 'SPORTS':
+        return Icons.sports_cricket_rounded;
+      default:
+        return Icons.article_outlined;
+    }
   }
 }
 
@@ -710,8 +816,3 @@ class _FactData {
   final String number;
   final String text;
 }
-
-const TextStyle _chartLabelStyle = TextStyle(
-  color: AppColors.textSecondary,
-  fontSize: 10,
-);
