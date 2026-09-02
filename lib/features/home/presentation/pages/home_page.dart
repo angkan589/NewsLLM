@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
+import 'package:newsllm/features/home/presentation/widgets/home_content_sections.dart';
+import 'package:newsllm/features/home/presentation/widgets/newspaper_sources_section.dart';
+import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -27,7 +30,9 @@ class HomePage extends StatelessWidget {
                     _buildTopBar(context, isCompact),
                     const SizedBox(height: 44),
                     _buildBriefingHeader(context, isCompact),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 36),
+                    const NewspaperSourcesSection(),
+                    const SizedBox(height: 48),
                     if (isCompact)
                       Column(
                         children: [
@@ -45,7 +50,8 @@ class HomePage extends StatelessWidget {
                           Expanded(child: _buildStudyPanel(context)),
                         ],
                       ),
-                    const SizedBox(height: 48),
+                    const SizedBox(height: 72),
+                    const HomeContentSections(),
                   ],
                 ),
               ),
@@ -59,20 +65,13 @@ class HomePage extends StatelessWidget {
   Widget _buildTopBar(BuildContext context, bool isCompact) {
     return Row(
       children: [
-        Container(
-          padding: const EdgeInsets.all(9),
-          decoration: BoxDecoration(
-            color: AppColors.darkNavy,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Icon(Icons.auto_awesome, color: Colors.white, size: 22),
-        ),
-        const SizedBox(width: 10),
-        Text(
-          'NewsLLM',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
+        SizedBox(
+          width: isCompact ? 155 : 230,
+          height: 62,
+          child: Image.asset(
+            'assets/images/logo.png',
+            fit: BoxFit.contain,
+            alignment: Alignment.centerLeft,
           ),
         ),
         if (!isCompact) ...[
@@ -267,7 +266,23 @@ class HomePage extends StatelessWidget {
                     ),
                     const Spacer(),
                     TextButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const ArticleDetailPage(
+                              newspaperName: 'The Daily Star',
+                              category: 'NATIONAL',
+                              title:
+                                  'Bangladesh launches ambitious green development roadmap',
+                              summary:
+                                  'The roadmap prioritises renewable energy, sustainable jobs, '
+                                  'and climate-resilient infrastructure across the country.',
+                              readingTime: '4 min read',
+                              accentColor: AppColors.primary,
+                            ),
+                          ),
+                        );
+                      },
                       label: const Text('Read briefing'),
                       icon: const Icon(Icons.arrow_forward, size: 18),
                     ),
