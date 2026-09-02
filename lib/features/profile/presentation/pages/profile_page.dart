@@ -248,88 +248,96 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _buildAccountSection(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.white,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(21),
-        border: Border.all(color: AppColors.border),
+        side: const BorderSide(color: AppColors.border),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Account',
-            style: TextStyle(
-              color: AppColors.darkNavy,
-              fontSize: 21,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 16),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.history_rounded),
-            title: const Text('Exam history'),
-            subtitle: Text(
-              '${AppSession.instance.completedQuizCount} completed exams',
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const ExamHistoryPage(),
-                ),
-              );
-            },
-          ),
-          const Divider(),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.bookmark_border_rounded),
-            title: const Text('Saved briefings'),
-            subtitle: Text(
-              '${AppSession.instance.bookmarkCount} saved stories',
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const BookmarksPage()),
-              );
-            },
-          ),
-          const Divider(),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.settings_outlined),
-            title: const Text('Settings'),
-            subtitle: Text(
-              '${AppSession.instance.preferredLanguage} • Notifications and reminders',
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const SettingsPage()),
-              );
-            },
-          ),
-          const Divider(),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            onTap: () {
-              _signOut(context);
-            },
-            leading: const Icon(Icons.logout_rounded, color: Color(0xFFDC2626)),
-            title: const Text(
-              'Sign out',
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Account',
               style: TextStyle(
-                color: Color(0xFFDC2626),
-                fontWeight: FontWeight.w700,
+                color: AppColors.darkNavy,
+                fontSize: 21,
+                fontWeight: FontWeight.w800,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.history_rounded),
+              title: const Text('Exam history'),
+              subtitle: Text(
+                '${AppSession.instance.completedQuizCount} completed exams',
+              ),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const ExamHistoryPage(),
+                  ),
+                );
+              },
+            ),
+            const Divider(),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.bookmark_border_rounded),
+              title: const Text('Saved briefings'),
+              subtitle: Text(
+                '${AppSession.instance.bookmarkCount} saved stories',
+              ),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const BookmarksPage(),
+                  ),
+                );
+              },
+            ),
+            const Divider(),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.settings_outlined),
+              title: const Text('Settings'),
+              subtitle: Text(
+                '${AppSession.instance.preferredLanguage} • '
+                'Notifications and reminders',
+              ),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const SettingsPage()),
+                );
+              },
+            ),
+            const Divider(),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              onTap: () {
+                _signOut(context);
+              },
+              leading: const Icon(
+                Icons.logout_rounded,
+                color: Color(0xFFDC2626),
+              ),
+              title: const Text(
+                'Sign out',
+                style: TextStyle(
+                  color: Color(0xFFDC2626),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
