@@ -1,24 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
-
-class AppSession {
-  AppSession._();
-
-  static final AppSession instance = AppSession._();
-
-  String name = '';
-  String email = '';
-
-  void signIn({required String name, required String email}) {
-    this.name = name;
-    this.email = email;
-  }
-
-  void signOut() {
-    name = '';
-    email = '';
-  }
-}
 
 enum AuthMode { signIn, signUp, forgotPassword }
 

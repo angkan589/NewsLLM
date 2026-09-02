@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
+import 'package:newsllm/core/session/app_session.dart';
 
 class DailyQuizPage extends StatefulWidget {
   const DailyQuizPage({super.key});
@@ -75,33 +76,58 @@ class _DailyQuizPageState extends State<DailyQuizPage> {
   }
 
   void _continueQuiz() {
-    if (_selectedAnswerIndex == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select an answer before continuing.'),
-        ),
-      );
-      return;
-    }
-
-    if (_selectedAnswerIndex ==
-        _questions[_currentQuestionIndex].correctAnswerIndex) {
-      _score++;
-    }
-
-    if (_currentQuestionIndex == _questions.length - 1) {
-      setState(() {
-        _quizCompleted = true;
-      });
-      return;
-    }
-
-    setState(() {
-      _currentQuestionIndex++;
-      _selectedAnswerIndex = null;
-    });
+  if (_selectedAnswerIndex == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please select an answer before continuing.'),
+      ),
+    );
+    return;
   }
 
+  final selectedCorrectly = _selectedAnswerIndex ==
+      _questions[_currentQuestionIndex].correctAnswerIndex;
+
+  final updatedScore = selectedCorrectly ? _score + 1 : _score;
+  final isLastQuestion =
+      _currentQuestionIndex == _questions.length - 1;
+
+  if (isLastQuestion) {
+    setState(() {
+      _score = updatedScore;
+      _quizCompleted = true;
+    });
+
+    if (AppSession.instance.isSignedIn) {
+      AppSession.instance.recordQuizResult(
+        score: updatedScore,
+        totalQuestions: _questions.length,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Quiz result saved to your profile.'),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Guest result is not saved. Sign in to track your progress.',
+          ),
+        ),
+      );
+    }
+
+    return;
+  }
+
+  setState(() {
+    _score = updatedScore;
+    _currentQuestionIndex++;
+    _selectedAnswerIndex = null;
+  });
+}
   void _restartQuiz() {
     setState(() {
       _currentQuestionIndex = 0;

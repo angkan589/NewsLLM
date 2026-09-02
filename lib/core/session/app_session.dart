@@ -10,12 +10,35 @@ class AppSession extends ChangeNotifier {
   String _email = '';
 
   final Set<String> _bookmarkedArticleTitles = {};
+  final List<double> _quizPercentages = [];
 
   bool get isSignedIn => _isSignedIn;
   String get name => _name;
   String get email => _email;
 
   int get bookmarkCount => _bookmarkedArticleTitles.length;
+
+  List<String> get bookmarkedArticleTitles {
+    return List.unmodifiable(_bookmarkedArticleTitles);
+  }
+
+  int get completedQuizCount => _quizPercentages.length;
+List<double> get quizPercentages {
+  return List.unmodifiable(_quizPercentages);
+}
+
+  int get averageQuizPercentage {
+    if (_quizPercentages.isEmpty) {
+      return 0;
+    }
+
+    final total = _quizPercentages.fold<double>(
+      0,
+      (sum, percentage) => sum + percentage,
+    );
+
+    return (total / _quizPercentages.length).round();
+  }
 
   bool isArticleBookmarked(String title) {
     return _bookmarkedArticleTitles.contains(title);
@@ -32,11 +55,26 @@ class AppSession extends ChangeNotifier {
     notifyListeners();
   }
 
+  void recordQuizResult({
+    required int score,
+    required int totalQuestions,
+  }) {
+    if (!_isSignedIn || totalQuestions == 0) {
+      return;
+    }
+
+    final percentage = score / totalQuestions * 100;
+    _quizPercentages.add(percentage);
+
+    notifyListeners();
+  }
+
   void signOut() {
     _isSignedIn = false;
     _name = '';
     _email = '';
     _bookmarkedArticleTitles.clear();
+    _quizPercentages.clear();
 
     notifyListeners();
   }
@@ -55,5 +93,10 @@ class AppSession extends ChangeNotifier {
     notifyListeners();
 
     return _bookmarkedArticleTitles.contains(title);
+  }
+
+  void removeArticleBookmark(String title) {
+    _bookmarkedArticleTitles.remove(title);
+    notifyListeners();
   }
 }

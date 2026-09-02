@@ -7,7 +7,8 @@ import 'package:newsllm/features/quiz/presentation/pages/daily_quiz_page.dart';
 import 'package:newsllm/features/home/presentation/pages/category_news_page.dart';
 import 'package:newsllm/features/auth/presentation/pages/auth_page.dart';
 import 'package:newsllm/features/search/presentation/pages/search_page.dart';
-import 'package:newsllm/core/session/app_session.dart' as app_session;
+import 'package:newsllm/core/session/app_session.dart';
+import 'package:newsllm/features/profile/presentation/pages/profile_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -114,19 +115,20 @@ class HomePage extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        Builder(
-          builder: (context) {
-            final session = app_session.AppSession.instance;
+        AnimatedBuilder(
+          animation: AppSession.instance,
+          builder: (context, child) {
+            final session = AppSession.instance;
 
-            if (session.name.isNotEmpty || session.email.isNotEmpty) {
+            if (session.isSignedIn) {
               return OutlinedButton.icon(
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const AuthPage(),
-                    ),
-                  );
-                },
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (context) => const ProfilePage(),
+    ),
+  );
+},
                 icon: const Icon(Icons.person_outline_rounded),
                 label: Text(session.name),
               );
@@ -135,9 +137,7 @@ class HomePage extends StatelessWidget {
             return OutlinedButton(
               onPressed: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const AuthPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const AuthPage()),
                 );
               },
               child: const Text('Sign in'),
