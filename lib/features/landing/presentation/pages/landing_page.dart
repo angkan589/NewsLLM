@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
+import 'package:newsllm/features/auth/presentation/pages/auth_page.dart';
+import 'package:newsllm/features/home/presentation/pages/home_page.dart';
 import 'package:newsllm/features/landing/presentation/widgets/landing_features_section.dart';
 import 'package:newsllm/features/landing/presentation/widgets/landing_footer.dart';
 
@@ -73,6 +75,63 @@ class LandingPage extends StatelessWidget {
     );
   }
 
+  void _openHome(BuildContext context) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const HomePage()),
+    );
+  }
+
+  void _openSignIn(BuildContext context) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const AuthPage()));
+  }
+
+  Future<void> _showHowItWorks(BuildContext context) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('How NewsLLM works'),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.article_outlined),
+                title: Text('1. Read concise briefings'),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.bolt_outlined),
+                title: Text('2. Revise important facts'),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.quiz_outlined),
+                title: Text('3. Test yourself with quizzes'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Close'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                _openHome(context);
+              },
+              child: const Text('Open NewsLLM'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildHeader(BuildContext context, bool isMobile) {
     return Row(
       children: [
@@ -94,13 +153,19 @@ class LandingPage extends StatelessWidget {
         ),
         Spacer(),
         if (!isMobile) ...[
-          TextButton(onPressed: () {}, child: Text('How it works')),
+          TextButton(
+            onPressed: () => _showHowItWorks(context),
+            child: const Text('How it works'),
+          ),
           SizedBox(width: 8),
-          TextButton(onPressed: () {}, child: Text('Sign in')),
+          TextButton(
+            onPressed: () => _openSignIn(context),
+            child: const Text('Sign in'),
+          ),
           SizedBox(width: 12),
         ],
         FilledButton(
-          onPressed: () {},
+          onPressed: () => _openHome(context),
           style: FilledButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           ),
@@ -169,7 +234,7 @@ class LandingPage extends StatelessWidget {
           runSpacing: 12,
           children: [
             FilledButton.icon(
-              onPressed: () {},
+              onPressed: () => _openHome(context),
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
@@ -180,7 +245,7 @@ class LandingPage extends StatelessWidget {
               label: Text('Start learning free'),
             ),
             OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () => _showHowItWorks(context),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,

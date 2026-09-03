@@ -337,155 +337,218 @@ class HomeContentSections extends StatelessWidget {
   }
 
   Widget _buildContinueLearning(BuildContext context) {
-    return Container(
-      height: 310,
-      padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(
-        color: AppColors.darkNavy,
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return AnimatedBuilder(
+      animation: AppSession.instance,
+      builder: (context, child) {
+        final session = AppSession.instance;
+        final hasResults = session.completedQuizCount > 0;
+        final progress = hasResults ? session.averageQuizPercentage / 100 : 0.0;
+
+        final eyebrow = session.isSignedIn
+            ? '${session.completedQuizCount} SAVED QUIZ${session.completedQuizCount == 1 ? '' : 'ZES'}'
+            : 'GUEST LEARNING';
+        final title = session.isSignedIn
+            ? hasResults
+                  ? 'Keep improving your current-affairs score'
+                  : 'Start your first current-affairs practice'
+            : 'Practice freely and sign in when you want to save progress';
+        final description = session.isSignedIn
+            ? hasResults
+                  ? 'Your current saved quiz average is ${session.averageQuizPercentage}%.'
+                  : 'Complete a quiz and your saved score will appear here.'
+            : 'Every quiz is available to guests. Sign in only when you want to save scores and history.';
+
+        return Container(
+          height: 310,
+          padding: const EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            color: AppColors.darkNavy,
+            borderRadius: BorderRadius.circular(22),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.local_fire_department, color: Color(0xFFFBBF24)),
-              SizedBox(width: 8),
+              Row(
+                children: [
+                  const Icon(Icons.quiz_outlined, color: Color(0xFFFBBF24)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      eyebrow,
+                      style: const TextStyle(
+                        color: Color(0xFFFBBF24),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
               Text(
-                '7-DAY STUDY STREAK',
-                style: TextStyle(
-                  color: Color(0xFFFBBF24),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.8,
+                title,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Colors.white,
+                  fontSize: 22,
+                  height: 1.25,
                 ),
+              ),
+              const SizedBox(height: 9),
+              Text(
+                description,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Color(0xFFCBD5E1), height: 1.4),
+              ),
+              const SizedBox(height: 14),
+              LinearProgressIndicator(
+                value: progress,
+                minHeight: 7,
+                backgroundColor: const Color(0xFF334155),
+                color: const Color(0xFF6EE7B7),
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+              ),
+              const SizedBox(height: 18),
+              FilledButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const QuizHubPage(),
+                    ),
+                  );
+                },
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: AppColors.darkNavy,
+                ),
+                icon: const Icon(Icons.play_arrow),
+                label: const Text('Open quiz hub'),
               ),
             ],
           ),
-          Spacer(),
-          Text(
-            'Continue yesterday’s International Affairs revision',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Colors.white,
-              fontSize: 24,
-              height: 1.3,
-            ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            'You completed 6 of 10 facts.',
-            style: TextStyle(color: Color(0xFFCBD5E1)),
-          ),
-          SizedBox(height: 18),
-          LinearProgressIndicator(
-            value: 0.6,
-            minHeight: 7,
-            backgroundColor: Color(0xFF334155),
-            color: Color(0xFF6EE7B7),
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-          SizedBox(height: 20),
-          FilledButton.icon(
-            onPressed: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (context) => QuizHubPage()));
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: AppColors.darkNavy,
-            ),
-            icon: Icon(Icons.play_arrow),
-            label: Text('Continue learning'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildProgressCard(BuildContext context) {
-    const values = [52.0, 76.0, 64.0, 88.0, 72.0, 96.0, 84.0];
+    return AnimatedBuilder(
+      animation: AppSession.instance,
+      builder: (context, child) {
+        final session = AppSession.instance;
+        final percentages = session.quizPercentages;
+        final recent = percentages.length <= 7
+            ? percentages
+            : percentages.sublist(percentages.length - 7);
+        final values = <double>[
+          ...recent,
+          ...List<double>.filled(7 - recent.length, 0),
+        ];
+        final hasResults = recent.isNotEmpty;
 
-    return Container(
-      height: 310,
-      padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(
-        color: context.surfaceColor,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: context.borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+        return Container(
+          height: 310,
+          padding: const EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            color: context.surfaceColor,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: context.borderColor),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  'Weekly accuracy',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: context.primaryTextColor,
-                    fontSize: 20,
-                  ),
-                ),
-              ),
-              SizedBox(width: 10),
-              Text(
-                '84%',
-                style: TextStyle(
-                  color: AppColors.accent,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Up 8% from last week',
-            style: TextStyle(color: context.secondaryTextColor, fontSize: 13),
-          ),
-          Spacer(),
-          SizedBox(
-            height: 130,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: values.map((value) {
-                return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: Container(
-                      height: value,
-                      decoration: BoxDecoration(
-                        color: value >= 80
-                            ? AppColors.accent
-                            : context.isDarkTheme
-                            ? Color(0xFF315276)
-                            : Color(0xFFBFDBFE),
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(7),
-                        ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Quiz accuracy',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: context.primaryTextColor,
+                        fontSize: 20,
                       ),
                     ),
                   ),
-                );
-              }).toList(),
-            ),
-          ),
-          SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _chartLabel(context, 'Mon'),
-              _chartLabel(context, 'Tue'),
-              _chartLabel(context, 'Wed'),
-              _chartLabel(context, 'Thu'),
-              _chartLabel(context, 'Fri'),
-              _chartLabel(context, 'Sat'),
-              _chartLabel(context, 'Sun'),
+                  if (hasResults)
+                    Text(
+                      '${session.averageQuizPercentage}%',
+                      style: const TextStyle(
+                        color: AppColors.accent,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    )
+                  else
+                    Icon(
+                      session.isSignedIn
+                          ? Icons.insights_outlined
+                          : Icons.lock_outline_rounded,
+                      color: context.secondaryTextColor,
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                hasResults
+                    ? 'Your last ${recent.length} saved quiz attempt${recent.length == 1 ? '' : 's'}'
+                    : session.isSignedIn
+                    ? 'Complete a quiz to create your progress chart.'
+                    : 'Sign in to save quiz scores and build this chart.',
+                style: TextStyle(
+                  color: context.secondaryTextColor,
+                  fontSize: 13,
+                ),
+              ),
+              const Spacer(),
+              SizedBox(
+                height: 130,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: values.map((value) {
+                    final barHeight = value == 0
+                        ? 8.0
+                        : (value / 100 * 112).clamp(8, 112).toDouble();
+
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Tooltip(
+                          message: value == 0
+                              ? 'No saved attempt'
+                              : '${value.round()}%',
+                          child: Container(
+                            height: barHeight,
+                            decoration: BoxDecoration(
+                              color: value == 0
+                                  ? context.mutedBackgroundColor
+                                  : value >= 80
+                                  ? AppColors.accent
+                                  : context.isDarkTheme
+                                  ? const Color(0xFF315276)
+                                  : const Color(0xFFBFDBFE),
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(7),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List.generate(
+                  7,
+                  (index) => _chartLabel(context, 'A${index + 1}'),
+                ),
+              ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

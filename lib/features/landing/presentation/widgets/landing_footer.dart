@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
+import 'package:newsllm/features/home/presentation/pages/home_page.dart';
 
 class LandingFooter extends StatelessWidget {
   const LandingFooter({super.key});
@@ -114,7 +115,11 @@ class LandingFooter extends StatelessWidget {
 
   Widget _buildButton(BuildContext context) {
     return FilledButton.icon(
-      onPressed: () {},
+      onPressed: () {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      },
       style: FilledButton.styleFrom(
         backgroundColor: Color(0xFF6EE7B7),
         foregroundColor: AppColors.darkNavy,
