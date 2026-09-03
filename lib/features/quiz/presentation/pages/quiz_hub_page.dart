@@ -227,7 +227,7 @@ class QuizHubPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      bottomNavigationBar: const MainNavigationBar(
+      bottomNavigationBar: MainNavigationBar(
         currentDestination: MainDestination.quiz,
       ),
       appBar: AppBar(
@@ -240,9 +240,9 @@ class QuizHubPage extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
         ),
-        title: const Text(
+        title: Text(
           'Quiz centre',
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
@@ -251,21 +251,21 @@ class QuizHubPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1050),
+            constraints: BoxConstraints(maxWidth: 1050),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(context),
-                const SizedBox(height: 30),
-                const Text(
+                SizedBox(height: 30),
+                Text(
                   'Practice by topic',
                   style: TextStyle(
-                    color: AppColors.darkNavy,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 25,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 18),
+                SizedBox(height: 18),
                 LayoutBuilder(
                   builder: (context, constraints) {
                     final columns = constraints.maxWidth >= 760 ? 2 : 1;
@@ -299,7 +299,7 @@ class QuizHubPage extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           colors: [AppColors.primary, AppColors.darkNavy],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -311,9 +311,9 @@ class QuizHubPage extends StatelessWidget {
         runSpacing: 20,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          const Icon(Icons.quiz_rounded, color: Colors.white, size: 52),
+          Icon(Icons.quiz_rounded, color: Colors.white, size: 52),
           ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 580),
+            constraints: BoxConstraints(maxWidth: 580),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -324,7 +324,7 @@ class QuizHubPage extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   'Take the daily exam or practise individual current-affairs topics.',
                   style: TextStyle(
@@ -332,21 +332,19 @@ class QuizHubPage extends StatelessWidget {
                     height: 1.5,
                   ),
                 ),
-                const SizedBox(height: 18),
+                SizedBox(height: 18),
                 FilledButton.icon(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const DailyQuizPage(),
-                      ),
+                      MaterialPageRoute(builder: (context) => DailyQuizPage()),
                     );
                   },
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF6EE7B7),
+                    backgroundColor: Color(0xFF6EE7B7),
                     foregroundColor: Theme.of(context).colorScheme.onSurface,
                   ),
-                  icon: const Icon(Icons.play_arrow_rounded),
-                  label: const Text('Start daily quiz'),
+                  icon: Icon(Icons.play_arrow_rounded),
+                  label: Text('Start daily quiz'),
                 ),
               ],
             ),
@@ -367,29 +365,32 @@ class _QuizCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(19),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(data.icon, color: data.color, size: 30),
-          const SizedBox(height: 17),
+          SizedBox(height: 17),
           Text(
             data.quiz.title,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             data.description,
-            style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              height: 1.5,
+            ),
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           Text(
             '${data.quiz.questions.length} questions',
             style: TextStyle(
@@ -398,7 +399,7 @@ class _QuizCard extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
           OutlinedButton.icon(
             onPressed: () {
               Navigator.of(context).push(
@@ -408,8 +409,8 @@ class _QuizCard extends StatelessWidget {
                 ),
               );
             },
-            icon: const Icon(Icons.play_arrow_rounded),
-            label: const Text('Start practice'),
+            icon: Icon(Icons.play_arrow_rounded),
+            label: Text('Start practice'),
           ),
         ],
       ),

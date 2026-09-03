@@ -82,7 +82,7 @@ class DailyQuizPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const QuizPage(
+    return QuizPage(
       quiz: _dailyQuiz,
       bottomNavigationBar: MainNavigationBar(
         currentDestination: MainDestination.quiz,

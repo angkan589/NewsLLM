@@ -28,7 +28,7 @@ class HomeContentSections extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildCategorySection(context),
-            const SizedBox(height: 64),
+            SizedBox(height: 64),
             _buildSectionHeader(
               context,
               title: 'More from today',
@@ -37,13 +37,12 @@ class HomeContentSections extends StatelessWidget {
               onAction: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) =>
-                        const CategoryNewsPage(category: 'Today'),
+                    builder: (context) => CategoryNewsPage(category: 'Today'),
                   ),
                 );
               },
             ),
-            const SizedBox(height: 22),
+            SizedBox(height: 22),
             Wrap(
               spacing: 20,
               runSpacing: 20,
@@ -62,9 +61,9 @@ class HomeContentSections extends StatelessWidget {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 72),
+            SizedBox(height: 72),
             _buildFactBank(context, isCompact),
-            const SizedBox(height: 72),
+            SizedBox(height: 72),
             _buildSectionHeader(
               context,
               title: 'Keep your preparation moving',
@@ -72,25 +71,23 @@ class HomeContentSections extends StatelessWidget {
               action: 'View progress',
               onAction: () {
                 if (!AppSession.instance.isSignedIn) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const AuthPage()),
-                  );
+                  Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (context) => AuthPage()));
                   return;
                 }
 
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const ExamHistoryPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => ExamHistoryPage()),
                 );
               },
             ),
-            const SizedBox(height: 22),
+            SizedBox(height: 22),
             if (isCompact)
               Column(
                 children: [
                   _buildContinueLearning(context),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                   _buildProgressCard(context),
                 ],
               )
@@ -99,13 +96,13 @@ class HomeContentSections extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(child: _buildContinueLearning(context)),
-                  const SizedBox(width: 20),
+                  SizedBox(width: 20),
                   Expanded(child: _buildProgressCard(context)),
                 ],
               ),
-            const SizedBox(height: 72),
+            SizedBox(height: 72),
             _buildLanguageBanner(context, isCompact),
-            const SizedBox(height: 72),
+            SizedBox(height: 72),
             _buildFooter(context, isCompact),
           ],
         );
@@ -158,12 +155,12 @@ class HomeContentSections extends StatelessWidget {
           onAction: () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => const CategoryNewsPage(category: 'Today'),
+                builder: (context) => CategoryNewsPage(category: 'Today'),
               ),
             );
           },
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Wrap(
           spacing: 12,
           runSpacing: 12,
@@ -210,7 +207,7 @@ class HomeContentSections extends StatelessWidget {
                           color: AppColors.darkNavy,
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      SizedBox(width: 10),
                       Text(
                         category.label,
                         style: TextStyle(
@@ -260,9 +257,7 @@ class HomeContentSections extends StatelessWidget {
         color: context.yellowTintColor,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: context.isDarkTheme
-              ? const Color(0xFF66501D)
-              : const Color(0xFFFDE68A),
+          color: context.isDarkTheme ? Color(0xFF66501D) : Color(0xFFFDE68A),
         ),
       ),
       child: Column(
@@ -281,13 +276,13 @@ class HomeContentSections extends StatelessWidget {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: context.isDarkTheme
-                          ? const Color(0xFF4A3714)
-                          : const Color(0xFFFEF3C7),
+                          ? Color(0xFF4A3714)
+                          : Color(0xFFFEF3C7),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.bolt, color: Color(0xFFD97706)),
+                    child: Icon(Icons.bolt, color: Color(0xFFD97706)),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Text(
                     'Today’s one-line fact bank',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -300,16 +295,14 @@ class HomeContentSections extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const FactBankPage(),
-                    ),
+                    MaterialPageRoute(builder: (context) => FactBankPage()),
                   );
                 },
-                child: const Text('Open fact bank'),
+                child: Text('Open fact bank'),
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           ...facts.map(
             (fact) => Padding(
               padding: const EdgeInsets.only(bottom: 14),
@@ -318,12 +311,12 @@ class HomeContentSections extends StatelessWidget {
                 children: [
                   Text(
                     fact.number,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFFD97706),
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   Expanded(
                     child: Text(
                       fact.text,
@@ -354,7 +347,7 @@ class HomeContentSections extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(Icons.local_fire_department, color: Color(0xFFFBBF24)),
               SizedBox(width: 8),
@@ -369,7 +362,7 @@ class HomeContentSections extends StatelessWidget {
               ),
             ],
           ),
-          const Spacer(),
+          Spacer(),
           Text(
             'Continue yesterday’s International Affairs revision',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -378,32 +371,32 @@ class HomeContentSections extends StatelessWidget {
               height: 1.3,
             ),
           ),
-          const SizedBox(height: 10),
-          const Text(
+          SizedBox(height: 10),
+          Text(
             'You completed 6 of 10 facts.',
             style: TextStyle(color: Color(0xFFCBD5E1)),
           ),
-          const SizedBox(height: 18),
-          const LinearProgressIndicator(
+          SizedBox(height: 18),
+          LinearProgressIndicator(
             value: 0.6,
             minHeight: 7,
             backgroundColor: Color(0xFF334155),
             color: Color(0xFF6EE7B7),
             borderRadius: BorderRadius.all(Radius.circular(10)),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           FilledButton.icon(
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const QuizHubPage()),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (context) => QuizHubPage()));
             },
             style: FilledButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: AppColors.darkNavy,
             ),
-            icon: const Icon(Icons.play_arrow),
-            label: const Text('Continue learning'),
+            icon: Icon(Icons.play_arrow),
+            label: Text('Continue learning'),
           ),
         ],
       ),
@@ -435,8 +428,8 @@ class HomeContentSections extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              const Text(
+              SizedBox(width: 10),
+              Text(
                 '84%',
                 style: TextStyle(
                   color: AppColors.accent,
@@ -446,12 +439,12 @@ class HomeContentSections extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             'Up 8% from last week',
             style: TextStyle(color: context.secondaryTextColor, fontSize: 13),
           ),
-          const Spacer(),
+          Spacer(),
           SizedBox(
             height: 130,
             child: Row(
@@ -466,8 +459,8 @@ class HomeContentSections extends StatelessWidget {
                         color: value >= 80
                             ? AppColors.accent
                             : context.isDarkTheme
-                            ? const Color(0xFF315276)
-                            : const Color(0xFFBFDBFE),
+                            ? Color(0xFF315276)
+                            : Color(0xFFBFDBFE),
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(7),
                         ),
@@ -478,7 +471,7 @@ class HomeContentSections extends StatelessWidget {
               }).toList(),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -516,15 +509,15 @@ class HomeContentSections extends StatelessWidget {
           ? Column(
               children: [
                 _buildLanguageText(context, true),
-                const SizedBox(height: 24),
-                _buildLanguageButtons(),
+                SizedBox(height: 24),
+                _buildLanguageButtons(context),
               ],
             )
           : Row(
               children: [
                 Expanded(child: _buildLanguageText(context, false)),
-                const SizedBox(width: 40),
-                _buildLanguageButtons(),
+                SizedBox(width: 40),
+                _buildLanguageButtons(context),
               ],
             ),
     );
@@ -544,7 +537,7 @@ class HomeContentSections extends StatelessWidget {
             fontSize: 26,
           ),
         ),
-        const SizedBox(height: 9),
+        SizedBox(height: 9),
         Text(
           'Switch between Bangla and English summaries whenever you need.',
           textAlign: centered ? TextAlign.center : TextAlign.left,
@@ -554,14 +547,14 @@ class HomeContentSections extends StatelessWidget {
     );
   }
 
-  Widget _buildLanguageButtons() {
+  Widget _buildLanguageButtons(BuildContext context) {
     return AnimatedBuilder(
       animation: AppSession.instance,
       builder: (context, child) {
         final session = AppSession.instance;
 
         return SegmentedButton<String>(
-          segments: const [
+          segments: [
             ButtonSegment<String>(value: 'English', label: Text('English')),
             ButtonSegment<String>(value: 'বাংলা', label: Text('বাংলা')),
           ],
@@ -590,33 +583,33 @@ class HomeContentSections extends StatelessWidget {
     return Column(
       children: [
         Divider(color: context.borderColor),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         if (isCompact)
           Column(
             children: [
-              const _FooterBrand(),
-              const SizedBox(height: 18),
+              _FooterBrand(),
+              SizedBox(height: 18),
               description,
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
               copyright,
             ],
           )
         else
           Row(
             children: [
-              const _FooterBrand(),
-              const SizedBox(width: 22),
+              _FooterBrand(),
+              SizedBox(width: 22),
               description,
-              const Spacer(),
+              Spacer(),
               Text(
                 'About   Privacy   Contact',
                 style: TextStyle(color: context.secondaryTextColor),
               ),
-              const SizedBox(width: 30),
+              SizedBox(width: 30),
               copyright,
             ],
           ),
-        const SizedBox(height: 28),
+        SizedBox(height: 28),
       ],
     );
   }
@@ -642,7 +635,7 @@ class HomeContentSections extends StatelessWidget {
                   fontSize: 25,
                 ),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Text(
                 subtitle,
                 style: TextStyle(color: context.secondaryTextColor),
@@ -650,7 +643,7 @@ class HomeContentSections extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         TextButton(onPressed: onAction, child: Text(action)),
       ],
     );
@@ -708,7 +701,7 @@ class _NewsCard extends StatelessWidget {
                         letterSpacing: 0.7,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(
                       article.title,
                       style: TextStyle(
@@ -718,7 +711,7 @@ class _NewsCard extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10),
                     Text(
                       article.summary,
                       maxLines: 3,
@@ -729,7 +722,7 @@ class _NewsCard extends StatelessWidget {
                         fontSize: 13,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     Row(
                       children: [
                         Icon(
@@ -737,7 +730,7 @@ class _NewsCard extends StatelessWidget {
                           color: context.secondaryTextColor,
                           size: 15,
                         ),
-                        const SizedBox(width: 5),
+                        SizedBox(width: 5),
                         Text(
                           article.readingTime,
                           style: TextStyle(
@@ -745,7 +738,7 @@ class _NewsCard extends StatelessWidget {
                             fontSize: 12,
                           ),
                         ),
-                        const Spacer(),
+                        Spacer(),
                         Icon(
                           Icons.arrow_forward_rounded,
                           color: article.accentColor,

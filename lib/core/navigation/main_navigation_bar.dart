@@ -84,7 +84,7 @@ class MainNavigationBar extends StatelessWidget {
           context: context,
           builder: (dialogContext) {
             return AlertDialog(
-              title: const Text('Sign in required'),
+              title: Text('Sign in required'),
               content: Text(
                 destination == MainDestination.saved
                     ? 'Sign in to access your saved briefings.'
@@ -95,13 +95,13 @@ class MainNavigationBar extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(dialogContext).pop(false);
                   },
-                  child: const Text('Cancel'),
+                  child: Text('Cancel'),
                 ),
                 FilledButton(
                   onPressed: () {
                     Navigator.of(dialogContext).pop(true);
                   },
-                  child: const Text('Sign in'),
+                  child: Text('Sign in'),
                 ),
               ],
             );
@@ -114,7 +114,7 @@ class MainNavigationBar extends StatelessWidget {
 
         await Navigator.of(
           context,
-        ).push(MaterialPageRoute(builder: (context) => const AuthPage()));
+        ).push(MaterialPageRoute(builder: (context) => AuthPage()));
 
         if (!context.mounted || !AppSession.instance.isSignedIn) {
           return;
@@ -135,7 +135,7 @@ class MainNavigationBar extends StatelessWidget {
 
     if (destination == MainDestination.home) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const HomePage()),
+        MaterialPageRoute(builder: (context) => HomePage()),
         (route) => false,
       );
       return;
@@ -149,15 +149,15 @@ class MainNavigationBar extends StatelessWidget {
   Widget _pageFor(MainDestination destination) {
     switch (destination) {
       case MainDestination.home:
-        return const HomePage();
+        return HomePage();
       case MainDestination.search:
-        return const SearchPage();
+        return SearchPage();
       case MainDestination.quiz:
-        return const QuizHubPage();
+        return QuizHubPage();
       case MainDestination.saved:
-        return const BookmarksPage();
+        return BookmarksPage();
       case MainDestination.profile:
-        return const ProfilePage();
+        return ProfilePage();
     }
   }
 
@@ -169,7 +169,7 @@ class MainNavigationBar extends StatelessWidget {
         final visible = NavigationVisibilityController.instance.visible;
 
         return AnimatedSize(
-          duration: const Duration(milliseconds: 240),
+          duration: Duration(milliseconds: 240),
           curve: Curves.easeInOut,
           alignment: Alignment.bottomCenter,
           child: visible
@@ -178,15 +178,17 @@ class MainNavigationBar extends StatelessWidget {
                   child: Center(
                     heightFactor: 1,
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 720),
+                      constraints: BoxConstraints(maxWidth: 720),
                       child: Container(
                         decoration: BoxDecoration(
                           color: context.elevatedSurfaceColor,
                           borderRadius: BorderRadius.circular(24),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                          boxShadow: const [
+                          border: Border.all(color: context.borderColor),
+                          boxShadow: [
                             BoxShadow(
-                              color: Color(0x260F172A),
+                              color: context.isDarkTheme
+                                  ? Colors.black.withValues(alpha: 0.45)
+                                  : Color(0x260F172A),
                               blurRadius: 24,
                               offset: Offset(0, 8),
                             ),
@@ -195,9 +197,9 @@ class MainNavigationBar extends StatelessWidget {
                         clipBehavior: Clip.antiAlias,
                         child: NavigationBar(
                           height: 72,
-                          backgroundColor: Colors.white,
-                          surfaceTintColor: Colors.white,
-                          indicatorColor: const Color(0xFFDBEAFE),
+                          backgroundColor: context.elevatedSurfaceColor,
+                          surfaceTintColor: Colors.transparent,
+                          indicatorColor: context.blueTintColor,
                           selectedIndex: currentDestination.index,
                           onDestinationSelected: (index) {
                             _selectDestination(
@@ -205,7 +207,7 @@ class MainNavigationBar extends StatelessWidget {
                               MainDestination.values[index],
                             );
                           },
-                          destinations: const [
+                          destinations: [
                             NavigationDestination(
                               icon: Icon(Icons.home_outlined),
                               selectedIcon: Icon(Icons.home_rounded),
@@ -236,7 +238,7 @@ class MainNavigationBar extends StatelessWidget {
                     ),
                   ),
                 )
-              : const SizedBox(width: double.infinity, height: 0),
+              : SizedBox(width: double.infinity, height: 0),
         );
       },
     );

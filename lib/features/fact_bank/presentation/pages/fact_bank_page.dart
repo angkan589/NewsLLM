@@ -45,25 +45,22 @@ class _FactBankPageState extends State<FactBankPage> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
         ),
-        title: const Text(
-          'Fact bank',
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
+        title: Text('Fact bank', style: TextStyle(fontWeight: FontWeight.w700)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1000),
+            constraints: BoxConstraints(maxWidth: 1000),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 _buildCategoryFilters(),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 ..._articles.map(_buildArticleFacts),
               ],
             ),
@@ -83,7 +80,7 @@ class _FactBankPageState extends State<FactBankPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           colors: [Color(0xFFD97706), AppColors.darkNavy],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -103,16 +100,12 @@ class _FactBankPageState extends State<FactBankPage> {
               color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(17),
             ),
-            child: const Icon(
-              Icons.bolt_rounded,
-              color: Color(0xFFFDE68A),
-              size: 32,
-            ),
+            child: Icon(Icons.bolt_rounded, color: Color(0xFFFDE68A), size: 32),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Today’s one-line facts',
                 style: TextStyle(
                   color: Colors.white,
@@ -120,7 +113,7 @@ class _FactBankPageState extends State<FactBankPage> {
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: 7),
+              SizedBox(height: 7),
               Text(
                 '$factCount quick revision facts from current briefings',
                 style: TextStyle(
@@ -155,10 +148,14 @@ class _FactBankPageState extends State<FactBankPage> {
               selectedColor: AppColors.primary,
               backgroundColor: Theme.of(context).colorScheme.surface,
               side: BorderSide(
-                color: selected ? AppColors.primary : AppColors.border,
+                color: selected
+                    ? AppColors.primary
+                    : Theme.of(context).colorScheme.outlineVariant,
               ),
               labelStyle: TextStyle(
-                color: selected ? Colors.white : AppColors.textPrimary,
+                color: selected
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w700,
               ),
               showCheckmark: false,
@@ -173,11 +170,11 @@ class _FactBankPageState extends State<FactBankPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 18),
       child: Material(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         child: Padding(
           padding: const EdgeInsets.all(22),
@@ -200,25 +197,25 @@ class _FactBankPageState extends State<FactBankPage> {
                   ),
                   Text(
                     article.newspaperName,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               Text(
                 article.title,
-                style: const TextStyle(
-                  color: AppColors.darkNavy,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 19,
                   fontWeight: FontWeight.w800,
                   height: 1.35,
                 ),
               ),
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
               ...article.facts.asMap().entries.map((entry) {
                 final number = entry.key + 1;
                 final fact = entry.value;
@@ -226,8 +223,12 @@ class _FactBankPageState extends State<FactBankPage> {
                 return Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 13),
-                  decoration: const BoxDecoration(
-                    border: Border(bottom: BorderSide(color: AppColors.border)),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                    ),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,19 +238,19 @@ class _FactBankPageState extends State<FactBankPage> {
                         height: 33,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFEF3C7),
+                          color: Color(0xFFFEF3C7),
                           borderRadius: BorderRadius.circular(9),
                         ),
                         child: Text(
                           '$number',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Color(0xFFD97706),
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 13),
+                      SizedBox(width: 13),
                       SizedBox(
                         width: 58,
                         child: Text(
@@ -264,8 +265,8 @@ class _FactBankPageState extends State<FactBankPage> {
                       Expanded(
                         child: Text(
                           fact.value,
-                          style: const TextStyle(
-                            color: AppColors.textPrimary,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             height: 1.45,
@@ -276,7 +277,7 @@ class _FactBankPageState extends State<FactBankPage> {
                   ),
                 );
               }),
-              const SizedBox(height: 17),
+              SizedBox(height: 17),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton.icon(
@@ -288,8 +289,8 @@ class _FactBankPageState extends State<FactBankPage> {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.article_outlined, size: 18),
-                  label: const Text('Read full briefing'),
+                  icon: Icon(Icons.article_outlined, size: 18),
+                  label: Text('Read full briefing'),
                 ),
               ),
             ],

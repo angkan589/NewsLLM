@@ -141,9 +141,9 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
         ),
-        title: const Text(
+        title: Text(
           'News briefing',
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
@@ -157,7 +157,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                   : Icons.bookmark_border_rounded,
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
         ],
       ),
       body: SingleChildScrollView(
@@ -167,19 +167,19 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
         ),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1120),
+            constraints: BoxConstraints(maxWidth: 1120),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHero(isMobile),
-                const SizedBox(height: 22),
+                SizedBox(height: 22),
                 LayoutBuilder(
                   builder: (context, constraints) {
                     if (constraints.maxWidth < 850) {
                       return Column(
                         children: [
                           _buildArticleContent(),
-                          const SizedBox(height: 20),
+                          SizedBox(height: 20),
                           _buildQuickRevision(),
                         ],
                       );
@@ -189,13 +189,13 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(flex: 7, child: _buildArticleContent()),
-                        const SizedBox(width: 20),
+                        SizedBox(width: 20),
                         Expanded(flex: 4, child: _buildQuickRevision()),
                       ],
                     );
                   },
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 _buildQuiz(),
               ],
             ),
@@ -211,8 +211,8 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
         context: context,
         builder: (dialogContext) {
           return AlertDialog(
-            title: const Text('Sign in to save'),
-            content: const Text(
+            title: Text('Sign in to save'),
+            content: Text(
               'You can read every briefing and take every exam as a guest. '
               'Sign in is only required to save bookmarks and learning progress.',
             ),
@@ -221,13 +221,13 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                 onPressed: () {
                   Navigator.of(dialogContext).pop(false);
                 },
-                child: const Text('Continue as guest'),
+                child: Text('Continue as guest'),
               ),
               FilledButton(
                 onPressed: () {
                   Navigator.of(dialogContext).pop(true);
                 },
-                child: const Text('Sign in'),
+                child: Text('Sign in'),
               ),
             ],
           );
@@ -240,7 +240,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
 
       await Navigator.of(
         context,
-      ).push(MaterialPageRoute(builder: (context) => const AuthPage()));
+      ).push(MaterialPageRoute(builder: (context) => AuthPage()));
 
       if (!mounted || !AppSession.instance.isSignedIn) {
         return;
@@ -262,7 +262,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
               ? 'Briefing saved to bookmarks'
               : 'Briefing removed from bookmarks',
         ),
-        duration: const Duration(seconds: 2),
+        duration: Duration(seconds: 2),
       ),
     );
   }
@@ -300,7 +300,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
               height: 1.15,
             ),
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
           Text(
             widget.resolvedSummary,
             style: TextStyle(
@@ -309,7 +309,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
               height: 1.55,
             ),
           ),
-          const SizedBox(height: 22),
+          SizedBox(height: 22),
           Wrap(
             spacing: 20,
             runSpacing: 10,
@@ -333,13 +333,13 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(30),
       ),
       child: Text(
         text.toUpperCase(),
-        style: const TextStyle(
-          color: AppColors.darkNavy,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface,
           fontSize: 10,
           fontWeight: FontWeight.w800,
           letterSpacing: 0.6,
@@ -353,8 +353,8 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, color: Colors.white70, size: 18),
-        const SizedBox(width: 7),
-        Text(text, style: const TextStyle(color: Colors.white70)),
+        SizedBox(width: 7),
+        Text(text, style: TextStyle(color: Colors.white70)),
       ],
     );
   }
@@ -371,14 +371,14 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                     'connects today’s news with wider national priorities. For exam '
                     'preparation, focus on the objective, responsible institutions '
                     'and expected public impact.',
-            style: const TextStyle(
-              color: AppColors.textPrimary,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 16,
               height: 1.7,
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         _SectionCard(
           icon: Icons.school_outlined,
           title: 'Exam takeaway',
@@ -386,15 +386,15 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
             widget.article?.examTakeaway ??
                 'Remember the initiative’s main objective, the authority responsible '
                     'for it and how it supports Bangladesh’s long-term development.',
-            style: const TextStyle(
-              color: AppColors.textPrimary,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 16,
               height: 1.7,
             ),
           ),
         ),
-        const SizedBox(height: 20),
-        const _SectionCard(
+        SizedBox(height: 20),
+        _SectionCard(
           icon: Icons.key_rounded,
           title: 'Key terms',
           child: Wrap(
@@ -415,15 +415,19 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
   Widget _buildQuickRevision() {
     return _SectionCard(
       icon: Icons.bolt_rounded,
-      iconColor: const Color(0xFFD97706),
+      iconColor: Color(0xFFD97706),
       title: 'Quick revision',
       child: Column(
         children: _facts.map((fact) {
           return Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 14),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: AppColors.border)),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
+              ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,8 +446,8 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                 Expanded(
                   child: Text(
                     fact['value']!,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       height: 1.4,
@@ -469,13 +473,13 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
         children: [
           Text(
             '${quiz.questions.length} questions based on this briefing.',
-            style: const TextStyle(
-              color: AppColors.textSecondary,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 15,
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(18),
@@ -486,7 +490,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                 color: widget.resolvedAccentColor.withValues(alpha: 0.2),
               ),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 Icon(Icons.lightbulb_outline_rounded),
                 SizedBox(width: 12),
@@ -494,7 +498,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                   child: Text(
                     'Review the summary and key facts before starting.',
                     style: TextStyle(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -502,7 +506,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
               ],
             ),
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
           FilledButton.icon(
             onPressed: () {
               Navigator.of(context).push(
@@ -519,8 +523,8 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
             ),
-            icon: const Icon(Icons.play_arrow_rounded),
-            label: const Text('Start article quiz'),
+            icon: Icon(Icons.play_arrow_rounded),
+            label: Text('Start article quiz'),
           ),
         ],
       ),
@@ -547,9 +551,9 @@ class _SectionCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -557,12 +561,12 @@ class _SectionCard extends StatelessWidget {
           Row(
             children: [
               Icon(icon, color: iconColor, size: 23),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
-                    color: AppColors.darkNavy,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                   ),
@@ -570,7 +574,7 @@ class _SectionCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
           child,
         ],
       ),
@@ -588,12 +592,14 @@ class _Keyword extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Color(0xFF172A46)
+            : Color(0xFFEFF6FF),
         borderRadius: BorderRadius.circular(30),
       ),
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           color: AppColors.primary,
           fontSize: 12,
           fontWeight: FontWeight.w700,

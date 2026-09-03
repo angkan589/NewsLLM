@@ -34,7 +34,7 @@ class _QuizPageState extends State<QuizPage> {
   void _continue() {
     if (_selectedAnswerIndex == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Select an answer before continuing.')),
+        SnackBar(content: Text('Select an answer before continuing.')),
       );
       return;
     }
@@ -73,11 +73,11 @@ class _QuizPageState extends State<QuizPage> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Quiz attempt saved to your profile.')),
+        SnackBar(content: Text('Quiz attempt saved to your profile.')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
             'Guest attempt is not saved. Sign in to track your progress.',
           ),
@@ -114,19 +114,19 @@ class _QuizPageState extends State<QuizPage> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
         ),
         title: Text(
           widget.quiz.title,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontWeight: FontWeight.w700),
+          style: TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 760),
+            constraints: BoxConstraints(maxWidth: 760),
             child: _completed ? _buildResult() : _buildQuestion(),
           ),
         ),
@@ -151,15 +151,15 @@ class _QuizPageState extends State<QuizPage> {
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const Spacer(),
+            Spacer(),
             Text(
               switch (widget.quiz.type) {
                 QuizType.daily => 'DAILY QUIZ',
                 QuizType.article => 'ARTICLE QUIZ',
                 QuizType.practice => 'PRACTICE QUIZ',
               },
-              style: const TextStyle(
-                color: AppColors.textSecondary,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.7,
@@ -167,42 +167,44 @@ class _QuizPageState extends State<QuizPage> {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: LinearProgressIndicator(
             value: progress,
             minHeight: 9,
-            backgroundColor: AppColors.border,
+            backgroundColor: Theme.of(context).colorScheme.outlineVariant,
             color: widget.accentColor,
           ),
         ),
-        const SizedBox(height: 26),
+        SizedBox(height: 26),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(26),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 question.question,
-                style: const TextStyle(
-                  color: AppColors.darkNavy,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   height: 1.3,
                 ),
               ),
-              const SizedBox(height: 26),
+              SizedBox(height: 26),
               ...List.generate(question.options.length, (index) {
                 return _buildOption(index, question.options[index]);
               }),
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -237,16 +239,18 @@ class _QuizPageState extends State<QuizPage> {
         },
         borderRadius: BorderRadius.circular(14),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
+          duration: Duration(milliseconds: 180),
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: selected
                 ? widget.accentColor.withValues(alpha: 0.08)
-                : AppColors.background,
+                : Theme.of(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: selected ? widget.accentColor : AppColors.border,
+              color: selected
+                  ? widget.accentColor
+                  : Theme.of(context).colorScheme.outlineVariant,
               width: selected ? 2 : 1,
             ),
           ),
@@ -256,16 +260,18 @@ class _QuizPageState extends State<QuizPage> {
                 selected
                     ? Icons.radio_button_checked
                     : Icons.radio_button_unchecked,
-                color: selected ? widget.accentColor : AppColors.textSecondary,
+                color: selected
+                    ? widget.accentColor
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
-              const SizedBox(width: 13),
+              SizedBox(width: 13),
               Expanded(
                 child: Text(
                   text,
                   style: TextStyle(
                     color: selected
                         ? widget.accentColor
-                        : AppColors.textPrimary,
+                        : Theme.of(context).colorScheme.onSurface,
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                   ),
                 ),
@@ -284,9 +290,9 @@ class _QuizPageState extends State<QuizPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(30),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         children: [
@@ -303,27 +309,27 @@ class _QuizPageState extends State<QuizPage> {
               size: 44,
             ),
           ),
-          const SizedBox(height: 22),
-          const Text(
+          SizedBox(height: 22),
+          Text(
             'Quiz completed!',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: AppColors.darkNavy,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 29,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           Text(
             'You answered $_score of '
             '${widget.quiz.questions.length} correctly.',
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 16,
             ),
           ),
-          const SizedBox(height: 22),
+          SizedBox(height: 22),
           Text(
             '$percentage%',
             style: TextStyle(
@@ -332,24 +338,24 @@ class _QuizPageState extends State<QuizPage> {
               fontWeight: FontWeight.w900,
             ),
           ),
-          const SizedBox(height: 28),
+          SizedBox(height: 28),
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
               onPressed: _restart,
-              icon: const Icon(Icons.replay_rounded),
-              label: const Text('Try again'),
+              icon: Icon(Icons.replay_rounded),
+              label: Text('Try again'),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              icon: const Icon(Icons.arrow_back_rounded),
-              label: const Text('Leave quiz'),
+              icon: Icon(Icons.arrow_back_rounded),
+              label: Text('Leave quiz'),
             ),
           ),
         ],
@@ -366,13 +372,11 @@ class _QuizPageState extends State<QuizPage> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
         ),
-        title: const Text('Quiz unavailable'),
+        title: Text('Quiz unavailable'),
       ),
-      body: const Center(
-        child: Text('No questions are available for this quiz.'),
-      ),
+      body: Center(child: Text('No questions are available for this quiz.')),
     );
   }
 }

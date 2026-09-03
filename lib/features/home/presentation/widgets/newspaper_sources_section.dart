@@ -61,7 +61,7 @@ class _NewspaperSourcesSectionState extends State<NewspaperSourcesSection> {
 
     _scrollController.animateTo(
       newPosition,
-      duration: const Duration(milliseconds: 400),
+      duration: Duration(milliseconds: 400),
       curve: Curves.easeOutCubic,
     );
   }
@@ -81,7 +81,7 @@ class _NewspaperSourcesSectionState extends State<NewspaperSourcesSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildHeader(context, isMobile),
-        const SizedBox(height: 22),
+        SizedBox(height: 22),
 
         // A fixed height prevents infinite-height layout errors.
         SizedBox(
@@ -89,10 +89,10 @@ class _NewspaperSourcesSectionState extends State<NewspaperSourcesSection> {
           child: ListView.separated(
             controller: _scrollController,
             scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
+            physics: BouncingScrollPhysics(),
             itemCount: _sources.length,
             separatorBuilder: (context, index) {
-              return const SizedBox(width: 16);
+              return SizedBox(width: 16);
             },
             itemBuilder: (context, index) {
               return _NewspaperCard(
@@ -113,15 +113,17 @@ class _NewspaperSourcesSectionState extends State<NewspaperSourcesSection> {
         Text(
           'Today’s newspaper desk',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: AppColors.darkNavy,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: isMobile ? 21 : 24,
             fontWeight: FontWeight.w700,
           ),
         ),
-        const SizedBox(height: 6),
-        const Text(
+        SizedBox(height: 6),
+        Text(
           'Swipe through today’s newspapers and explore the briefings.',
-          style: TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ],
     );
@@ -133,19 +135,19 @@ class _NewspaperSourcesSectionState extends State<NewspaperSourcesSection> {
           icon: Icons.chevron_left_rounded,
           onPressed: () => _moveCarousel(-500),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         _CarouselButton(
           icon: Icons.chevron_right_rounded,
           onPressed: () => _moveCarousel(500),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFFD1FAE5),
+            color: Color(0xFFD1FAE5),
             borderRadius: BorderRadius.circular(30),
           ),
-          child: const Text(
+          child: Text(
             '30 BRIEFINGS',
             style: TextStyle(
               color: Color(0xFF047857),
@@ -161,7 +163,7 @@ class _NewspaperSourcesSectionState extends State<NewspaperSourcesSection> {
     if (isMobile) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [heading, const SizedBox(height: 14), controls],
+        children: [heading, SizedBox(height: 14), controls],
       );
     }
 
@@ -186,7 +188,7 @@ class _NewspaperCard extends StatelessWidget {
     return SizedBox(
       width: width,
       child: Material(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -204,7 +206,9 @@ class _NewspaperCard extends StatelessWidget {
           },
           child: Ink(
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.border),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
               borderRadius: BorderRadius.circular(18),
             ),
             child: Column(
@@ -227,7 +231,7 @@ class _NewspaperCard extends StatelessWidget {
                                 color: source.color,
                                 size: 64,
                               ),
-                              const SizedBox(height: 14),
+                              SizedBox(height: 14),
                               Text(
                                 source.name,
                                 textAlign: TextAlign.center,
@@ -237,11 +241,13 @@ class _NewspaperCard extends StatelessWidget {
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
-                              const SizedBox(height: 6),
-                              const Text(
+                              SizedBox(height: 6),
+                              Text(
                                 'Front page preview',
                                 style: TextStyle(
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                   fontSize: 12,
                                 ),
                               ),
@@ -266,14 +272,14 @@ class _NewspaperCard extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     source.briefingCount,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                 ),
-                                const Icon(
+                                Icon(
                                   Icons.arrow_forward_rounded,
                                   color: Colors.white,
                                   size: 18,
@@ -300,14 +306,14 @@ class _NewspaperCard extends StatelessWidget {
                         ),
                         child: Text(
                           source.shortName,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 11),
+                      SizedBox(width: 11),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,17 +322,19 @@ class _NewspaperCard extends StatelessWidget {
                               source.name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            const SizedBox(height: 3),
+                            SizedBox(height: 3),
                             Text(
                               source.language,
-                              style: const TextStyle(
-                                color: AppColors.textSecondary,
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                                 fontSize: 12,
                               ),
                             ),
@@ -354,8 +362,8 @@ class _CarouselButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
-      shape: const CircleBorder(),
+      color: Theme.of(context).colorScheme.surface,
+      shape: CircleBorder(),
       elevation: 2,
       shadowColor: Colors.black26,
       child: IconButton(

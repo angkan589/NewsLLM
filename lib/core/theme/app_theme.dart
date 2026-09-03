@@ -79,6 +79,28 @@ class AppTheme {
       inputDecorationTheme: const InputDecorationTheme(
         filled: true,
         fillColor: surface,
+        labelStyle: TextStyle(color: textSecondary),
+        floatingLabelStyle: TextStyle(color: Color(0xFF93C5FD)),
+        hintStyle: TextStyle(color: textSecondary),
+        prefixIconColor: textSecondary,
+        suffixIconColor: textSecondary,
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF60A5FA), width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFFF87171)),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFFF87171), width: 2),
+        ),
+      ),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: Color(0xFF60A5FA),
+        selectionColor: Color(0x5560A5FA),
+        selectionHandleColor: Color(0xFF60A5FA),
       ),
       textTheme: const TextTheme(
         headlineLarge: TextStyle(

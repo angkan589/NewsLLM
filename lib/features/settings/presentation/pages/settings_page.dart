@@ -19,12 +19,9 @@ class SettingsPage extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
         ),
-        title: const Text(
-          'Settings',
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
+        title: Text('Settings', style: TextStyle(fontWeight: FontWeight.w700)),
       ),
       body: AnimatedBuilder(
         animation: AppSession.instance,
@@ -35,15 +32,15 @@ class SettingsPage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 800),
+                constraints: BoxConstraints(maxWidth: 800),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildLanguageSection(session),
-                    const SizedBox(height: 20),
-                    _buildNotificationSection(session),
-                    const SizedBox(height: 20),
-                    _buildStorageNotice(),
+                    _buildLanguageSection(context, session),
+                    SizedBox(height: 20),
+                    _buildNotificationSection(context, session),
+                    SizedBox(height: 20),
+                    _buildStorageNotice(context),
                   ],
                 ),
               ),
@@ -54,20 +51,23 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLanguageSection(AppSession session) {
+  Widget _buildLanguageSection(BuildContext context, AppSession session) {
     return _SettingsCard(
       title: 'Language',
       icon: Icons.language_rounded,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Choose the language used for briefings and quizzes.',
-            style: TextStyle(color: AppColors.textSecondary, height: 1.5),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              height: 1.5,
+            ),
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
           SegmentedButton<String>(
-            segments: const [
+            segments: [
               ButtonSegment<String>(
                 value: 'English',
                 label: Text('English'),
@@ -84,12 +84,12 @@ class SettingsPage extends StatelessWidget {
               session.updatePreferredLanguage(selection.first);
             },
           ),
-          const SizedBox(height: 14),
-          const Text(
+          SizedBox(height: 14),
+          Text(
             'Full Bengali content will be connected when multilingual '
             'AI content generation is implemented.',
             style: TextStyle(
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 12,
               height: 1.5,
             ),
@@ -99,7 +99,7 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildNotificationSection(AppSession session) {
+  Widget _buildNotificationSection(BuildContext context, AppSession session) {
     return _SettingsCard(
       title: 'Notifications',
       icon: Icons.notifications_outlined,
@@ -107,28 +107,28 @@ class SettingsPage extends StatelessWidget {
         children: [
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Important news'),
-            subtitle: const Text(
+            title: Text('Important news'),
+            subtitle: Text(
               'Receive alerts for important current-affairs stories.',
             ),
             value: session.newsNotificationsEnabled,
             onChanged: session.updateNewsNotifications,
           ),
-          const Divider(),
+          Divider(),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Exam reminders'),
-            subtitle: const Text(
+            title: Text('Exam reminders'),
+            subtitle: Text(
               'Receive reminders about available quizzes and exams.',
             ),
             value: session.examRemindersEnabled,
             onChanged: session.updateExamReminders,
           ),
-          const Divider(),
+          Divider(),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Daily briefing'),
-            subtitle: const Text(
+            title: Text('Daily briefing'),
+            subtitle: Text(
               'Receive a reminder when the daily briefing is ready.',
             ),
             value: session.dailyBriefingReminderEnabled,
@@ -139,16 +139,18 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStorageNotice() {
+  Widget _buildStorageNotice(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Color(0xFF172A46)
+            : Color(0xFFEFF6FF),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFBFDBFE)),
+        border: Border.all(color: Color(0xFFBFDBFE)),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.info_outline_rounded, color: AppColors.primary),
@@ -158,7 +160,10 @@ class SettingsPage extends StatelessWidget {
               'These preferences currently remain only while the frontend '
               'application is running. Permanent account synchronization '
               'will be added during backend development.',
-              style: TextStyle(color: AppColors.textPrimary, height: 1.5),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                height: 1.5,
+              ),
             ),
           ),
         ],
@@ -180,34 +185,36 @@ class _SettingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(21),
-        border: Border.all(color: AppColors.border),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: AppColors.primary),
-              const SizedBox(width: 10),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: AppColors.darkNavy,
-                  fontSize: 21,
-                  fontWeight: FontWeight.w800,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: AppColors.primary),
+                const SizedBox(width: 10),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: 21,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          child,
-        ],
+              ],
+            ),
+            const SizedBox(height: 20),
+            child,
+          ],
+        ),
       ),
     );
   }

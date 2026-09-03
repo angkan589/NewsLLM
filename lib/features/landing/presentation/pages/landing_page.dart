@@ -13,18 +13,22 @@ class LandingPage extends StatelessWidget {
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFFF8FAFF), Color(0xFFF1F5FF), Color(0xFFF8FAFC)],
+            colors: [
+              Theme.of(context).scaffoldBackgroundColor,
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).scaffoldBackgroundColor,
+            ],
           ),
         ),
         child: SafeArea(
           child: SingleChildScrollView(
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1240),
+                constraints: BoxConstraints(maxWidth: 1240),
                 child: Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: isMobile ? 20 : 48,
@@ -38,24 +42,26 @@ class LandingPage extends StatelessWidget {
                           ? Column(
                               children: [
                                 _buildHeroText(context, true),
-                                const SizedBox(height: 48),
-                                _buildDashboardPreview(),
+                                SizedBox(height: 48),
+                                _buildDashboardPreview(context),
                               ],
                             )
                           : Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Expanded(child: _buildHeroText(context, false)),
-                                const SizedBox(width: 64),
-                                Expanded(child: _buildDashboardPreview()),
+                                SizedBox(width: 64),
+                                Expanded(
+                                  child: _buildDashboardPreview(context),
+                                ),
                               ],
                             ),
-                      const SizedBox(height: 72),
-                      _buildStatistics(),
-                      const SizedBox(height: 120),
-                      const LandingFeaturesSection(),
-                      const SizedBox(height: 120),
-                      const LandingFooter(),
+                      SizedBox(height: 72),
+                      _buildStatistics(context),
+                      SizedBox(height: 120),
+                      LandingFeaturesSection(),
+                      SizedBox(height: 120),
+                      LandingFooter(),
                     ],
                   ),
                 ),
@@ -76,9 +82,9 @@ class LandingPage extends StatelessWidget {
             color: AppColors.darkNavy,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(Icons.auto_awesome, color: Colors.white, size: 22),
+          child: Icon(Icons.auto_awesome, color: Colors.white, size: 22),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Text(
           'NewsLLM',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -86,12 +92,12 @@ class LandingPage extends StatelessWidget {
             fontWeight: FontWeight.w800,
           ),
         ),
-        const Spacer(),
+        Spacer(),
         if (!isMobile) ...[
-          TextButton(onPressed: () {}, child: const Text('How it works')),
-          const SizedBox(width: 8),
-          TextButton(onPressed: () {}, child: const Text('Sign in')),
-          const SizedBox(width: 12),
+          TextButton(onPressed: () {}, child: Text('How it works')),
+          SizedBox(width: 8),
+          TextButton(onPressed: () {}, child: Text('Sign in')),
+          SizedBox(width: 12),
         ],
         FilledButton(
           onPressed: () {},
@@ -113,10 +119,10 @@ class LandingPage extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFFE0EAFF),
+            color: Color(0xFFE0EAFF),
             borderRadius: BorderRadius.circular(30),
           ),
-          child: const Text(
+          child: Text(
             'BUILT FOR COMPETITIVE EXAMS',
             style: TextStyle(
               color: AppColors.primary,
@@ -126,11 +132,11 @@ class LandingPage extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Text.rich(
           TextSpan(
             children: [
-              const TextSpan(text: 'News that helps you '),
+              TextSpan(text: 'News that helps you '),
               TextSpan(
                 text: 'score better.',
                 style: TextStyle(color: AppColors.primary),
@@ -139,24 +145,24 @@ class LandingPage extends StatelessWidget {
           ),
           textAlign: isMobile ? TextAlign.center : TextAlign.left,
           style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-            color: AppColors.darkNavy,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: isMobile ? 42 : 60,
             height: 1.05,
             letterSpacing: -1.5,
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Text(
           'Turn daily news into concise summaries, important one-line facts, '
           'and exam-focused MCQ practice in Bangla and English.',
           textAlign: isMobile ? TextAlign.center : TextAlign.left,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 18,
             height: 1.6,
           ),
         ),
-        const SizedBox(height: 32),
+        SizedBox(height: 32),
         Wrap(
           alignment: isMobile ? WrapAlignment.center : WrapAlignment.start,
           spacing: 14,
@@ -170,8 +176,8 @@ class LandingPage extends StatelessWidget {
                   vertical: 18,
                 ),
               ),
-              icon: const Icon(Icons.arrow_forward),
-              label: const Text('Start learning free'),
+              icon: Icon(Icons.arrow_forward),
+              label: Text('Start learning free'),
             ),
             OutlinedButton.icon(
               onPressed: () {},
@@ -181,20 +187,23 @@ class LandingPage extends StatelessWidget {
                   vertical: 18,
                 ),
               ),
-              icon: const Icon(Icons.play_circle_outline),
-              label: const Text('See how it works'),
+              icon: Icon(Icons.play_circle_outline),
+              label: Text('See how it works'),
             ),
           ],
         ),
-        const SizedBox(height: 24),
-        const Row(
+        SizedBox(height: 24),
+        Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.check_circle, color: AppColors.accent, size: 18),
             SizedBox(width: 8),
             Text(
               'Daily summaries • Smart quizzes • Progress tracking',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 13,
+              ),
             ),
           ],
         ),
@@ -202,14 +211,14 @@ class LandingPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDashboardPreview() {
+  Widget _buildDashboardPreview(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border),
-        boxShadow: const [
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+        boxShadow: [
           BoxShadow(
             color: Color(0x1A2563EB),
             blurRadius: 40,
@@ -220,7 +229,7 @@ class LandingPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               CircleAvatar(
                 radius: 18,
@@ -239,54 +248,59 @@ class LandingPage extends StatelessWidget {
                     Text(
                       'Good morning, Angkan',
                       style: TextStyle(
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     Text(
                       'Your daily briefing is ready',
                       style: TextStyle(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 12,
                       ),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.notifications_none, color: AppColors.textSecondary),
+              Icon(
+                Icons.notifications_none,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ],
           ),
-          const SizedBox(height: 24),
-          const Text(
+          SizedBox(height: 24),
+          Text(
             'Today’s top stories',
             style: TextStyle(
-              color: AppColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           _buildNewsItem(
+            context,
             icon: Icons.account_balance_outlined,
             category: 'NATIONAL',
             title: 'Bangladesh announces a new green growth roadmap',
-            color: const Color(0xFFDCFCE7),
+            color: Color(0xFFDCFCE7),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildNewsItem(
+            context,
             icon: Icons.public,
             category: 'INTERNATIONAL',
             title: 'World leaders agree on an ocean protection framework',
-            color: const Color(0xFFE0E7FF),
+            color: Color(0xFFE0E7FF),
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.darkNavy,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 Icon(Icons.quiz_outlined, color: Color(0xFF6EE7B7)),
                 SizedBox(width: 12),
@@ -321,7 +335,8 @@ class LandingPage extends StatelessWidget {
     );
   }
 
-  Widget _buildNewsItem({
+  Widget _buildNewsItem(
+    BuildContext context, {
     required IconData icon,
     required String category,
     required String title,
@@ -338,27 +353,27 @@ class LandingPage extends StatelessWidget {
           ),
           child: Icon(icon, color: AppColors.darkNavy),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 category,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.primary,
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.7,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w600,
                   height: 1.3,
                 ),
@@ -370,12 +385,12 @@ class LandingPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatistics() {
+  Widget _buildStatistics(BuildContext context) {
     return Wrap(
       alignment: WrapAlignment.center,
       spacing: 40,
       runSpacing: 18,
-      children: const [
+      children: [
         _Statistic(value: '5 min', label: 'Daily learning'),
         _Statistic(value: '2 languages', label: 'Bangla and English'),
         _Statistic(value: '4 formats', label: 'Learn, revise and test'),
@@ -398,18 +413,18 @@ class _Statistic extends StatelessWidget {
         children: [
           Text(
             value,
-            style: const TextStyle(
-              color: AppColors.darkNavy,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 22,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 13,
             ),
           ),

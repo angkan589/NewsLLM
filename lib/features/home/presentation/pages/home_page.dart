@@ -22,14 +22,14 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: context.pageBackground,
-      bottomNavigationBar: const MainNavigationBar(
+      bottomNavigationBar: MainNavigationBar(
         currentDestination: MainDestination.home,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1280),
+              constraints: BoxConstraints(maxWidth: 1280),
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: isCompact ? 20 : 48,
@@ -39,16 +39,16 @@ class HomePage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildTopBar(context, isCompact),
-                    const SizedBox(height: 44),
+                    SizedBox(height: 44),
                     _buildBriefingHeader(context, isCompact),
-                    const SizedBox(height: 36),
-                    const NewspaperSourcesSection(),
-                    const SizedBox(height: 48),
+                    SizedBox(height: 36),
+                    NewspaperSourcesSection(),
+                    SizedBox(height: 48),
                     if (isCompact)
                       Column(
                         children: [
                           _buildLeadStory(context),
-                          const SizedBox(height: 20),
+                          SizedBox(height: 20),
                           _buildStudyPanel(context),
                         ],
                       )
@@ -57,12 +57,12 @@ class HomePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(flex: 2, child: _buildLeadStory(context)),
-                          const SizedBox(width: 24),
+                          SizedBox(width: 24),
                           Expanded(child: _buildStudyPanel(context)),
                         ],
                       ),
-                    const SizedBox(height: 72),
-                    const HomeContentSections(),
+                    SizedBox(height: 72),
+                    HomeContentSections(),
                   ],
                 ),
               ),
@@ -86,25 +86,25 @@ class HomePage extends StatelessWidget {
           ),
         ),
         if (!isCompact) ...[
-          const SizedBox(width: 48),
+          SizedBox(width: 48),
           _navButton(context, 'Today', true),
           _navButton(context, 'National', false),
           _navButton(context, 'International', false),
           _navButton(context, 'Business', false),
           _navButton(context, 'Science & Tech', false),
         ],
-        const Spacer(),
+        Spacer(),
         if (!isCompact) ...[
           IconButton(
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const SearchPage()),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (context) => SearchPage()));
             },
             tooltip: 'Search',
-            icon: const Icon(Icons.search),
+            icon: Icon(Icons.search),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
         ],
         AnimatedBuilder(
           animation: AppSession.instance,
@@ -141,7 +141,7 @@ class HomePage extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 IconButton(
                   tooltip: session.isDarkMode
                       ? 'Use light theme'
@@ -159,7 +159,7 @@ class HomePage extends StatelessWidget {
             );
           },
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         AnimatedBuilder(
           animation: AppSession.instance,
           builder: (context, child) {
@@ -169,23 +169,21 @@ class HomePage extends StatelessWidget {
               return OutlinedButton.icon(
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const ProfilePage(),
-                    ),
+                    MaterialPageRoute(builder: (context) => ProfilePage()),
                   );
                 },
-                icon: const Icon(Icons.person_outline_rounded),
+                icon: Icon(Icons.person_outline_rounded),
                 label: Text(session.name),
               );
             }
 
             return OutlinedButton(
               onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const AuthPage()),
-                );
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (context) => AuthPage()));
               },
-              child: const Text('Sign in'),
+              child: Text('Sign in'),
             );
           },
         ),
@@ -207,7 +205,9 @@ class HomePage extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color: selected ? AppColors.primary : AppColors.textSecondary,
+          color: selected
+              ? AppColors.primary
+              : Theme.of(context).colorScheme.onSurfaceVariant,
           fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
         ),
       ),
@@ -218,18 +218,18 @@ class HomePage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
             Icon(
               Icons.calendar_today_outlined,
               size: 16,
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             SizedBox(width: 8),
             Text(
               'THURSDAY, 20 AUGUST 2026',
               style: TextStyle(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.8,
@@ -237,7 +237,7 @@ class HomePage extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 14),
+        SizedBox(height: 14),
         Text(
           'Good morning. Here’s what matters today.',
           style: Theme.of(context).textTheme.headlineLarge?.copyWith(
@@ -247,11 +247,11 @@ class HomePage extends StatelessWidget {
             letterSpacing: -1,
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Text(
           'Your exam-focused daily briefing, prepared in about five minutes.',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 17,
           ),
         ),
@@ -262,9 +262,9 @@ class HomePage extends StatelessWidget {
   Widget _buildLeadStory(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,7 +272,7 @@ class HomePage extends StatelessWidget {
           Container(
             height: 230,
             width: double.infinity,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -282,7 +282,7 @@ class HomePage extends StatelessWidget {
             ),
             child: Stack(
               children: [
-                const Positioned(
+                Positioned(
                   right: 30,
                   bottom: 24,
                   child: Icon(
@@ -300,10 +300,10 @@ class HomePage extends StatelessWidget {
                       vertical: 7,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    child: const Text(
+                    child: Text(
                       'LEAD STORY • NATIONAL',
                       style: TextStyle(
                         color: AppColors.primary,
@@ -325,42 +325,42 @@ class HomePage extends StatelessWidget {
                 Text(
                   'Bangladesh introduces a national green growth roadmap',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppColors.darkNavy,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 25,
                     height: 1.25,
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Text(
                   'The roadmap prioritises renewable energy, sustainable jobs, '
                   'and climate-resilient infrastructure across the country.',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     height: 1.55,
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.schedule,
                       size: 17,
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
-                    const SizedBox(width: 7),
-                    const Text(
+                    SizedBox(width: 7),
+                    Text(
                       '4 min read',
                       style: TextStyle(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 13,
                       ),
                     ),
-                    const Spacer(),
+                    Spacer(),
                     TextButton.icon(
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => const ArticleDetailPage(
+                            builder: (context) => ArticleDetailPage(
                               newspaperName: 'The Daily Star',
                               category: 'NATIONAL',
                               title:
@@ -374,8 +374,8 @@ class HomePage extends StatelessWidget {
                           ),
                         );
                       },
-                      label: const Text('Read briefing'),
-                      icon: const Icon(Icons.arrow_forward, size: 18),
+                      label: Text('Read briefing'),
+                      icon: Icon(Icons.arrow_forward, size: 18),
                     ),
                   ],
                 ),
@@ -394,37 +394,39 @@ class HomePage extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(22),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
+              Row(
                 children: [
                   Icon(Icons.bolt, color: Color(0xFFD97706)),
                   SizedBox(width: 9),
                   Text(
                     'Quick revision',
                     style: TextStyle(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 18),
-              _factRow('WHO', 'Ministry of Environment'),
-              const Divider(height: 24),
-              _factRow('WHAT', 'Green Growth Roadmap'),
-              const Divider(height: 24),
-              _factRow('WHY', 'Climate-resilient economy'),
+              SizedBox(height: 18),
+              _factRow(context, 'WHO', 'Ministry of Environment'),
+              Divider(height: 24),
+              _factRow(context, 'WHAT', 'Green Growth Roadmap'),
+              Divider(height: 24),
+              _factRow(context, 'WHY', 'Climate-resilient economy'),
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
@@ -435,13 +437,9 @@ class HomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(
-                Icons.quiz_outlined,
-                color: Color(0xFF6EE7B7),
-                size: 30,
-              ),
-              const SizedBox(height: 18),
-              const Text(
+              Icon(Icons.quiz_outlined, color: Color(0xFF6EE7B7), size: 30),
+              SizedBox(height: 18),
+              Text(
                 'Ready for today’s quiz?',
                 style: TextStyle(
                   color: Colors.white,
@@ -449,26 +447,24 @@ class HomePage extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: 8),
-              const Text(
+              SizedBox(height: 8),
+              Text(
                 '5 questions based on today’s important news.',
                 style: TextStyle(color: Color(0xFFCBD5E1), height: 1.5),
               ),
-              const SizedBox(height: 22),
+              SizedBox(height: 22),
               FilledButton.icon(
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const DailyQuizPage(),
-                    ),
+                    MaterialPageRoute(builder: (context) => DailyQuizPage()),
                   );
                 },
                 style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF6EE7B7),
+                  backgroundColor: Color(0xFF6EE7B7),
                   foregroundColor: AppColors.darkNavy,
                 ),
-                icon: const Icon(Icons.play_arrow),
-                label: const Text('Start daily quiz'),
+                icon: Icon(Icons.play_arrow),
+                label: Text('Start daily quiz'),
               ),
             ],
           ),
@@ -477,7 +473,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _factRow(String label, String value) {
+  Widget _factRow(BuildContext context, String label, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -485,7 +481,7 @@ class HomePage extends StatelessWidget {
           width: 52,
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.primary,
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -496,8 +492,8 @@ class HomePage extends StatelessWidget {
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.w600,
             ),
           ),

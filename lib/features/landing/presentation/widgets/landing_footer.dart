@@ -26,29 +26,29 @@ class LandingFooter extends StatelessWidget {
                   ? Column(
                       children: [
                         _buildCallToActionText(context, true),
-                        const SizedBox(height: 28),
-                        _buildButton(),
+                        SizedBox(height: 28),
+                        _buildButton(context),
                       ],
                     )
                   : Row(
                       children: [
                         Expanded(child: _buildCallToActionText(context, false)),
-                        const SizedBox(width: 40),
-                        _buildButton(),
+                        SizedBox(width: 40),
+                        _buildButton(context),
                       ],
                     ),
             );
           },
         ),
-        const SizedBox(height: 48),
-        const Divider(color: AppColors.border),
-        const SizedBox(height: 24),
+        SizedBox(height: 48),
+        Divider(color: Theme.of(context).colorScheme.outlineVariant),
+        SizedBox(height: 24),
         LayoutBuilder(
           builder: (context, constraints) {
             final isMobile = constraints.maxWidth < 650;
 
             if (isMobile) {
-              return const Column(
+              return Column(
                 children: [
                   _FooterBrand(),
                   SizedBox(height: 20),
@@ -57,7 +57,7 @@ class LandingFooter extends StatelessWidget {
                   Text(
                     '© 2026 NewsLLM. All rights reserved.',
                     style: TextStyle(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 12,
                     ),
                   ),
@@ -65,7 +65,7 @@ class LandingFooter extends StatelessWidget {
               );
             }
 
-            return const Row(
+            return Row(
               children: [
                 _FooterBrand(),
                 Spacer(),
@@ -74,7 +74,7 @@ class LandingFooter extends StatelessWidget {
                 Text(
                   '© 2026 NewsLLM',
                   style: TextStyle(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 12,
                   ),
                 ),
@@ -82,7 +82,7 @@ class LandingFooter extends StatelessWidget {
             );
           },
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
       ],
     );
   }
@@ -102,30 +102,26 @@ class LandingFooter extends StatelessWidget {
             height: 1.15,
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Text(
           'Build a consistent current-affairs habit in only a few minutes a day.',
           textAlign: isMobile ? TextAlign.center : TextAlign.left,
-          style: const TextStyle(
-            color: Color(0xFFCBD5E1),
-            fontSize: 16,
-            height: 1.5,
-          ),
+          style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 16, height: 1.5),
         ),
       ],
     );
   }
 
-  Widget _buildButton() {
+  Widget _buildButton(BuildContext context) {
     return FilledButton.icon(
       onPressed: () {},
       style: FilledButton.styleFrom(
-        backgroundColor: const Color(0xFF6EE7B7),
+        backgroundColor: Color(0xFF6EE7B7),
         foregroundColor: AppColors.darkNavy,
         padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 20),
       ),
-      icon: const Icon(Icons.arrow_forward),
-      label: const Text(
+      icon: Icon(Icons.arrow_forward),
+      label: Text(
         'Start learning free',
         style: TextStyle(fontWeight: FontWeight.w700),
       ),
@@ -138,7 +134,7 @@ class _FooterBrand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(Icons.auto_awesome, color: AppColors.primary, size: 21),
@@ -146,7 +142,7 @@ class _FooterBrand extends StatelessWidget {
         Text(
           'NewsLLM',
           style: TextStyle(
-            color: AppColors.darkNavy,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 18,
             fontWeight: FontWeight.w800,
           ),
@@ -161,13 +157,28 @@ class _FooterLinks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Wrap(
+    return Wrap(
       alignment: WrapAlignment.center,
       spacing: 24,
       children: [
-        Text('About', style: TextStyle(color: AppColors.textSecondary)),
-        Text('Privacy', style: TextStyle(color: AppColors.textSecondary)),
-        Text('Contact', style: TextStyle(color: AppColors.textSecondary)),
+        Text(
+          'About',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        Text(
+          'Privacy',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        Text(
+          'Contact',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
       ],
     );
   }

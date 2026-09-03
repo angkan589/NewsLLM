@@ -14,8 +14,8 @@ class ProfilePage extends StatelessWidget {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Sign out?'),
-          content: const Text(
+          title: Text('Sign out?'),
+          content: Text(
             'You will need to sign in again to access your saved progress.',
           ),
           actions: [
@@ -23,13 +23,13 @@ class ProfilePage extends StatelessWidget {
               onPressed: () {
                 Navigator.of(dialogContext).pop(false);
               },
-              child: const Text('Cancel'),
+              child: Text('Cancel'),
             ),
             FilledButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop(true);
               },
-              child: const Text('Sign out'),
+              child: Text('Sign out'),
             ),
           ],
         );
@@ -48,7 +48,7 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      bottomNavigationBar: const MainNavigationBar(
+      bottomNavigationBar: MainNavigationBar(
         currentDestination: MainDestination.profile,
       ),
       appBar: AppBar(
@@ -61,9 +61,9 @@ class ProfilePage extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
         ),
-        title: const Text(
+        title: Text(
           'My profile',
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
@@ -77,13 +77,13 @@ class ProfilePage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 900),
+                constraints: BoxConstraints(maxWidth: 900),
                 child: Column(
                   children: [
-                    _buildProfileHeader(session),
-                    const SizedBox(height: 20),
-                    _buildProgressSection(session),
-                    const SizedBox(height: 20),
+                    _buildProfileHeader(context, session),
+                    SizedBox(height: 20),
+                    _buildProgressSection(context, session),
+                    SizedBox(height: 20),
                     _buildAccountSection(context),
                   ],
                 ),
@@ -95,14 +95,14 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileHeader(AppSession session) {
+  Widget _buildProfileHeader(BuildContext context, AppSession session) {
     final initial = session.name.isEmpty ? 'N' : session.name[0].toUpperCase();
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           colors: [AppColors.primary, AppColors.darkNavy],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -128,7 +128,7 @@ class ProfilePage extends StatelessWidget {
             ),
             child: Text(
               initial,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
                 fontSize: 34,
                 fontWeight: FontWeight.w900,
@@ -140,13 +140,13 @@ class ProfilePage extends StatelessWidget {
             children: [
               Text(
                 session.name,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontSize: 27,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: 7),
+              SizedBox(height: 7),
               Text(
                 session.email,
                 style: TextStyle(
@@ -154,8 +154,8 @@ class ProfilePage extends StatelessWidget {
                   fontSize: 15,
                 ),
               ),
-              const SizedBox(height: 10),
-              const Row(
+              SizedBox(height: 10),
+              Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
@@ -181,27 +181,27 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressSection(AppSession session) {
+  Widget _buildProgressSection(BuildContext context, AppSession session) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(21),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Learning progress',
             style: TextStyle(
-              color: AppColors.darkNavy,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 21,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Wrap(
             spacing: 14,
             runSpacing: 14,
@@ -216,15 +216,15 @@ class ProfilePage extends StatelessWidget {
                 icon: Icons.grade_outlined,
                 value: '${session.averageQuizPercentage}%',
                 label: 'Average score',
-                color: const Color(0xFF059669),
+                color: Color(0xFF059669),
               ),
               _ProfileStat(
                 icon: Icons.bookmark_border_rounded,
                 value: '${session.bookmarkCount}',
                 label: 'Saved stories',
-                color: const Color(0xFFD97706),
+                color: Color(0xFFD97706),
               ),
-              const _ProfileStat(
+              _ProfileStat(
                 icon: Icons.local_fire_department_outlined,
                 value: '0',
                 label: 'Day streak',
@@ -232,12 +232,12 @@ class ProfilePage extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          const Text(
+          SizedBox(height: 20),
+          Text(
             'Exam history, average score and streak will use real stored data '
             'after the backend is connected.',
             style: TextStyle(
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 13,
               height: 1.5,
             ),
@@ -249,86 +249,79 @@ class ProfilePage extends StatelessWidget {
 
   Widget _buildAccountSection(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(21),
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Account',
               style: TextStyle(
-                color: AppColors.darkNavy,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 21,
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.history_rounded),
-              title: const Text('Exam history'),
+              leading: Icon(Icons.history_rounded),
+              title: Text('Exam history'),
               subtitle: Text(
                 '${AppSession.instance.completedQuizCount} completed exams',
               ),
-              trailing: const Icon(Icons.chevron_right_rounded),
+              trailing: Icon(Icons.chevron_right_rounded),
               onTap: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const ExamHistoryPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => ExamHistoryPage()),
                 );
               },
             ),
-            const Divider(),
+            Divider(),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.bookmark_border_rounded),
-              title: const Text('Saved briefings'),
+              leading: Icon(Icons.bookmark_border_rounded),
+              title: Text('Saved briefings'),
               subtitle: Text(
                 '${AppSession.instance.bookmarkCount} saved stories',
               ),
-              trailing: const Icon(Icons.chevron_right_rounded),
+              trailing: Icon(Icons.chevron_right_rounded),
               onTap: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const BookmarksPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => BookmarksPage()),
                 );
               },
             ),
-            const Divider(),
+            Divider(),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.settings_outlined),
-              title: const Text('Settings'),
+              leading: Icon(Icons.settings_outlined),
+              title: Text('Settings'),
               subtitle: Text(
                 '${AppSession.instance.preferredLanguage} • '
                 'Notifications and reminders',
               ),
-              trailing: const Icon(Icons.chevron_right_rounded),
+              trailing: Icon(Icons.chevron_right_rounded),
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const SettingsPage()),
-                );
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (context) => SettingsPage()));
               },
             ),
-            const Divider(),
+            Divider(),
             ListTile(
               contentPadding: EdgeInsets.zero,
               onTap: () {
                 _signOut(context);
               },
-              leading: const Icon(
-                Icons.logout_rounded,
-                color: Color(0xFFDC2626),
-              ),
-              title: const Text(
+              leading: Icon(Icons.logout_rounded, color: Color(0xFFDC2626)),
+              title: Text(
                 'Sign out',
                 style: TextStyle(
                   color: Color(0xFFDC2626),
@@ -362,28 +355,28 @@ class _ProfileStat extends StatelessWidget {
       width: 185,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: color),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           Text(
             value,
-            style: const TextStyle(
-              color: AppColors.darkNavy,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 25,
               fontWeight: FontWeight.w900,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 12,
             ),
           ),

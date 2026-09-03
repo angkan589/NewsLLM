@@ -20,9 +20,9 @@ class ExamHistoryPage extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
         ),
-        title: const Text(
+        title: Text(
           'Exam history',
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
@@ -36,10 +36,10 @@ class ExamHistoryPage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 900),
+                constraints: BoxConstraints(maxWidth: 900),
                 child: results.isEmpty
                     ? _buildEmptyState(context)
-                    : _buildHistory(results),
+                    : _buildHistory(context, results),
               ),
             ),
           );
@@ -48,24 +48,27 @@ class ExamHistoryPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHistory(List<QuizResult> results) {
+  Widget _buildHistory(BuildContext context, List<QuizResult> results) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Your exam attempts',
           style: TextStyle(
-            color: AppColors.darkNavy,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 28,
             fontWeight: FontWeight.w800,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Text(
           '${results.length} recorded ${results.length == 1 ? 'attempt' : 'attempts'}',
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 15),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontSize: 15,
+          ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         ...results.map(
           (result) => Padding(
             padding: const EdgeInsets.only(bottom: 14),
@@ -81,9 +84,9 @@ class ExamHistoryPage extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         children: [
@@ -94,35 +97,38 @@ class ExamHistoryPage extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.history_rounded,
               color: AppColors.primary,
               size: 40,
             ),
           ),
-          const SizedBox(height: 22),
-          const Text(
+          SizedBox(height: 22),
+          Text(
             'No exam history',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: AppColors.darkNavy,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 25,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 9),
-          const Text(
+          SizedBox(height: 9),
+          Text(
             'Complete a quiz while signed in and your attempt will appear here.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textSecondary, height: 1.5),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              height: 1.5,
+            ),
           ),
-          const SizedBox(height: 22),
+          SizedBox(height: 22),
           OutlinedButton.icon(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            icon: const Icon(Icons.arrow_back_rounded),
-            label: const Text('Back to profile'),
+            icon: Icon(Icons.arrow_back_rounded),
+            label: Text('Back to profile'),
           ),
         ],
       ),
@@ -140,17 +146,15 @@ class _QuizResultCard extends StatelessWidget {
     final percentage = result.percentage.round();
     final passed = percentage >= 60;
 
-    final statusColor = passed
-        ? const Color(0xFF059669)
-        : const Color(0xFFDC2626);
+    final statusColor = passed ? Color(0xFF059669) : Color(0xFFDC2626);
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +174,7 @@ class _QuizResultCard extends StatelessWidget {
               color: statusColor,
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,52 +188,52 @@ class _QuizResultCard extends StatelessWidget {
                       text: result.typeLabel,
                       color: result.quizType == QuizType.daily
                           ? AppColors.primary
-                          : const Color(0xFF7C3AED),
+                          : Color(0xFF7C3AED),
                     ),
                     _ResultBadge(
                       text: 'Attempt ${result.attemptNumber}',
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ],
                 ),
-                const SizedBox(height: 11),
+                SizedBox(height: 11),
                 Text(
                   result.quizTitle,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
                     height: 1.3,
                   ),
                 ),
                 if (result.relatedArticleTitle != null) ...[
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6),
                   Text(
                     result.relatedArticleTitle!,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 13,
                       height: 1.4,
                     ),
                   ),
                 ],
-                const SizedBox(height: 11),
+                SizedBox(height: 11),
                 Wrap(
                   spacing: 18,
                   runSpacing: 6,
                   children: [
                     Text(
                       '${result.score}/${result.totalQuestions} correct',
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
                       _formatDateTime(result.completedAt),
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 13,
                       ),
                     ),
@@ -238,7 +242,7 @@ class _QuizResultCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -250,7 +254,7 @@ class _QuizResultCard extends StatelessWidget {
                   fontWeight: FontWeight.w900,
                 ),
               ),
-              const SizedBox(height: 5),
+              SizedBox(height: 5),
               Text(
                 passed ? 'Passed' : 'Review',
                 style: TextStyle(

@@ -33,25 +33,25 @@ class CategoryNewsPage extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
         ),
         title: Text(
           category == 'Today' ? 'Today’s briefings' : category,
-          style: const TextStyle(fontWeight: FontWeight.w700),
+          style: TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1050),
+            constraints: BoxConstraints(maxWidth: 1050),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeader(articles.length),
-                const SizedBox(height: 24),
+                _buildHeader(context, articles.length),
+                SizedBox(height: 24),
                 if (articles.isEmpty)
-                  _buildEmptyState()
+                  _buildEmptyState(context)
                 else
                   LayoutBuilder(
                     builder: (context, constraints) {
@@ -91,12 +91,12 @@ class CategoryNewsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(int articleCount) {
+  Widget _buildHeader(BuildContext context, int articleCount) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(26),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           colors: [AppColors.primary, AppColors.darkNavy],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -115,20 +115,20 @@ class CategoryNewsPage extends StatelessWidget {
             ),
             child: Icon(_categoryIcon(category), color: Colors.white, size: 29),
           ),
-          const SizedBox(width: 17),
+          SizedBox(width: 17),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   category == 'Today' ? 'Today’s news' : category,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 7),
+                SizedBox(height: 7),
                 Text(
                   '$articleCount exam-focused '
                   '${articleCount == 1 ? 'briefing' : 'briefings'} available',
@@ -145,27 +145,27 @@ class CategoryNewsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 52),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
-      child: const Column(
+      child: Column(
         children: [
           Icon(
             Icons.article_outlined,
             size: 48,
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           SizedBox(height: 16),
           Text(
             'No briefings available',
             style: TextStyle(
-              color: AppColors.darkNavy,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 21,
               fontWeight: FontWeight.w800,
             ),
@@ -174,7 +174,10 @@ class CategoryNewsPage extends StatelessWidget {
           Text(
             'New exam-focused stories will appear here when they are added.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textSecondary, height: 1.5),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              height: 1.5,
+            ),
           ),
         ],
       ),
@@ -208,17 +211,19 @@ class _ArticleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(18),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Container(
-          constraints: const BoxConstraints(minHeight: 245),
+          constraints: BoxConstraints(minHeight: 245),
           padding: const EdgeInsets.all(21),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,52 +243,52 @@ class _ArticleCard extends StatelessWidget {
                   ),
                   Text(
                     article.newspaperName,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 13),
+              SizedBox(height: 13),
               Text(
                 article.title,
-                style: const TextStyle(
-                  color: AppColors.darkNavy,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 19,
                   fontWeight: FontWeight.w800,
                   height: 1.3,
                 ),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               Text(
                 article.summary,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 14,
                   height: 1.5,
                 ),
               ),
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.schedule_rounded,
                     size: 16,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6),
                   Text(
                     article.readingTime,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 12,
                     ),
                   ),
-                  const Spacer(),
+                  Spacer(),
                   Text(
                     'Read briefing',
                     style: TextStyle(
@@ -292,7 +297,7 @@ class _ArticleCard extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Icon(
                     Icons.arrow_forward_rounded,
                     color: article.accentColor,

@@ -22,14 +22,14 @@ class BookmarksPage extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
         ),
-        title: const Text(
+        title: Text(
           'Saved briefings',
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
-      bottomNavigationBar: const MainNavigationBar(
+      bottomNavigationBar: MainNavigationBar(
         currentDestination: MainDestination.saved,
       ),
       body: AnimatedBuilder(
@@ -45,7 +45,7 @@ class BookmarksPage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
             itemCount: titles.length,
             separatorBuilder: (context, index) {
-              return const SizedBox(height: 14);
+              return SizedBox(height: 14);
             },
             itemBuilder: (context, index) {
               final title = titles[index];
@@ -71,7 +71,7 @@ class BookmarksPage extends StatelessWidget {
                   AppSession.instance.removeArticleBookmark(title);
 
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
+                    SnackBar(
                       content: Text('Briefing removed from saved stories'),
                       duration: Duration(seconds: 2),
                     ),
@@ -90,12 +90,14 @@ class BookmarksPage extends StatelessWidget {
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Container(
-          constraints: const BoxConstraints(maxWidth: 520),
+          constraints: BoxConstraints(maxWidth: 520),
           padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -104,44 +106,46 @@ class BookmarksPage extends StatelessWidget {
                 width: 72,
                 height: 72,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFEFF6FF),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Color(0xFF172A46)
+                      : Color(0xFFEFF6FF),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.bookmark_border_rounded,
                   color: AppColors.primary,
                   size: 34,
                 ),
               ),
-              const SizedBox(height: 20),
-              const Text(
+              SizedBox(height: 20),
+              Text(
                 'No saved briefings',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: AppColors.darkNavy,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 23,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: 10),
-              const Text(
+              SizedBox(height: 10),
+              Text(
                 'Open a news briefing and select the bookmark icon to save it '
                 'for later revision.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 15,
                   height: 1.5,
                 ),
               ),
-              const SizedBox(height: 22),
+              SizedBox(height: 22),
               OutlinedButton.icon(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                icon: const Icon(Icons.arrow_back_rounded),
-                label: const Text('Browse briefings'),
+                icon: Icon(Icons.arrow_back_rounded),
+                label: Text('Browse briefings'),
               ),
             ],
           ),
@@ -174,9 +178,9 @@ class _BookmarkCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 900),
+        constraints: BoxConstraints(maxWidth: 900),
         child: Material(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(18),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
@@ -185,7 +189,9 @@ class _BookmarkCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.border),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
                 borderRadius: BorderRadius.circular(18),
               ),
               child: Row(
@@ -196,15 +202,17 @@ class _BookmarkCard extends StatelessWidget {
                     height: 48,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Color(0xFF172A46)
+                          : Color(0xFFEFF6FF),
                       borderRadius: BorderRadius.circular(13),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.bookmark_rounded,
                       color: AppColors.primary,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,24 +220,24 @@ class _BookmarkCard extends StatelessWidget {
                         if (category != null)
                           Text(
                             category!,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.primary,
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.6,
                             ),
                           ),
-                        if (category != null) const SizedBox(height: 7),
+                        if (category != null) SizedBox(height: 7),
                         Text(
                           title,
-                          style: const TextStyle(
-                            color: AppColors.darkNavy,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
                             height: 1.35,
                           ),
                         ),
-                        const SizedBox(height: 9),
+                        SizedBox(height: 9),
                         if (canOpen)
                           Wrap(
                             spacing: 14,
@@ -248,11 +256,13 @@ class _BookmarkCard extends StatelessWidget {
                             ],
                           )
                         else
-                          const Text(
+                          Text(
                             'This older saved story is not available in the '
                             'current frontend news collection.',
                             style: TextStyle(
-                              color: AppColors.textSecondary,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                               fontSize: 12,
                               height: 1.4,
                             ),
@@ -260,21 +270,21 @@ class _BookmarkCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   IconButton(
                     tooltip: 'Remove bookmark',
                     onPressed: onRemove,
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.delete_outline_rounded,
                       color: Color(0xFFDC2626),
                     ),
                   ),
                   if (canOpen)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.only(top: 12),
                       child: Icon(
                         Icons.chevron_right_rounded,
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                 ],
@@ -298,11 +308,18 @@ class _Metadata extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 15, color: AppColors.textSecondary),
-        const SizedBox(width: 5),
+        Icon(
+          icon,
+          size: 15,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+        SizedBox(width: 5),
         Text(
           text,
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontSize: 12,
+          ),
         ),
       ],
     );

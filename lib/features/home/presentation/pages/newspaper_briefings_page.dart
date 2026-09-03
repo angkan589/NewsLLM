@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
 import 'package:newsllm/features/news/data/mock_news_repository.dart';
 import 'package:newsllm/features/news/domain/models/news_article.dart';
@@ -40,44 +39,44 @@ class NewspaperBriefingsPage extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
         ),
         title: Text(
           newspaperName,
-          style: const TextStyle(fontWeight: FontWeight.w700),
+          style: TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1100),
+            constraints: BoxConstraints(maxWidth: 1100),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildNewspaperHeader(articles.length),
-                const SizedBox(height: 34),
-                const Text(
+                _buildNewspaperHeader(context, articles.length),
+                SizedBox(height: 34),
+                Text(
                   'Today’s briefings',
                   style: TextStyle(
-                    color: AppColors.darkNavy,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 25,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 7),
+                SizedBox(height: 7),
                 Text(
                   articles.isEmpty
                       ? 'No stories are available from $newspaperName yet.'
                       : '${articles.length} exam-focused '
                             '${articles.length == 1 ? 'story' : 'stories'} '
                             'selected from $newspaperName.',
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 15,
                   ),
                 ),
-                const SizedBox(height: 22),
+                SizedBox(height: 22),
                 if (articles.isEmpty)
                   _buildEmptyState(context)
                 else
@@ -112,14 +111,14 @@ class NewspaperBriefingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildNewspaperHeader(int articleCount) {
+  Widget _buildNewspaperHeader(BuildContext context, int articleCount) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Wrap(
         spacing: 20,
@@ -136,7 +135,7 @@ class NewspaperBriefingsPage extends StatelessWidget {
             ),
             child: Text(
               shortName,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
@@ -148,18 +147,18 @@ class NewspaperBriefingsPage extends StatelessWidget {
             children: [
               Text(
                 newspaperName,
-                style: const TextStyle(
-                  color: AppColors.darkNavy,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Text(
                 '$language newspaper • $articleCount '
                 '${articleCount == 1 ? 'briefing' : 'briefings'} today',
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 14,
                 ),
               ),
@@ -175,35 +174,38 @@ class NewspaperBriefingsPage extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         children: [
           Icon(Icons.newspaper_rounded, color: color, size: 47),
-          const SizedBox(height: 16),
-          const Text(
+          SizedBox(height: 16),
+          Text(
             'No briefings available',
             style: TextStyle(
-              color: AppColors.darkNavy,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 21,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             'New stories from $newspaperName will appear here when they are added.',
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              height: 1.5,
+            ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           OutlinedButton.icon(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            icon: const Icon(Icons.arrow_back_rounded),
-            label: const Text('View other newspapers'),
+            icon: Icon(Icons.arrow_back_rounded),
+            label: Text('View other newspapers'),
           ),
         ],
       ),
@@ -220,7 +222,7 @@ class _BriefingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(18),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -232,10 +234,12 @@ class _BriefingCard extends StatelessWidget {
           );
         },
         child: Container(
-          constraints: const BoxConstraints(minHeight: 235),
+          constraints: BoxConstraints(minHeight: 235),
           padding: const EdgeInsets.all(22),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.border),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
             borderRadius: BorderRadius.circular(18),
           ),
           child: Column(
@@ -250,44 +254,44 @@ class _BriefingCard extends StatelessWidget {
                   letterSpacing: 0.7,
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Text(
                 article.title,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   height: 1.3,
                 ),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               Text(
                 article.summary,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 14,
                   height: 1.5,
                 ),
               ),
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.schedule_rounded,
                     size: 17,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6),
                   Text(
                     article.readingTime,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 12,
                     ),
                   ),
-                  const Spacer(),
+                  Spacer(),
                   Text(
                     'Read briefing',
                     style: TextStyle(
@@ -296,7 +300,7 @@ class _BriefingCard extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(width: 5),
+                  SizedBox(width: 5),
                   Icon(Icons.arrow_forward_rounded, color: color, size: 18),
                 ],
               ),

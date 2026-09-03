@@ -49,7 +49,7 @@ class _AuthPageState extends State<AuthPage> {
       _submitting = true;
     });
 
-    await Future<void>.delayed(const Duration(milliseconds: 700));
+    await Future<void>.delayed(Duration(milliseconds: 700));
 
     if (!mounted) return;
 
@@ -59,7 +59,7 @@ class _AuthPageState extends State<AuthPage> {
 
     if (_mode == AuthMode.forgotPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
             'Frontend complete. Password reset will work after backend setup.',
           ),
@@ -100,26 +100,25 @@ class _AuthPageState extends State<AuthPage> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
         ),
-        title: Text(
-          _pageTitle,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-        ),
+        title: Text(_pageTitle, style: TextStyle(fontWeight: FontWeight.w700)),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 36),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 500),
+              constraints: BoxConstraints(maxWidth: 500),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(28),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
                 ),
                 child: Form(
                   key: _formKey,
@@ -127,7 +126,7 @@ class _AuthPageState extends State<AuthPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildHeading(),
-                      const SizedBox(height: 28),
+                      SizedBox(height: 28),
                       if (_mode == AuthMode.signUp) ...[
                         TextFormField(
                           controller: _nameController,
@@ -143,7 +142,7 @@ class _AuthPageState extends State<AuthPage> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                       ],
                       TextFormField(
                         controller: _emailController,
@@ -168,7 +167,7 @@ class _AuthPageState extends State<AuthPage> {
                         },
                       ),
                       if (_mode != AuthMode.forgotPassword) ...[
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _hidePassword,
@@ -200,7 +199,7 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                       ],
                       if (_mode == AuthMode.signUp) ...[
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         TextFormField(
                           controller: _confirmPasswordController,
                           obscureText: _hideConfirmPassword,
@@ -236,11 +235,11 @@ class _AuthPageState extends State<AuthPage> {
                             onPressed: () {
                               _changeMode(AuthMode.forgotPassword);
                             },
-                            child: const Text('Forgot password?'),
+                            child: Text('Forgot password?'),
                           ),
                         ),
                       ] else
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton(
@@ -249,7 +248,7 @@ class _AuthPageState extends State<AuthPage> {
                             padding: const EdgeInsets.symmetric(vertical: 17),
                           ),
                           child: _submitting
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 22,
                                   height: 22,
                                   child: CircularProgressIndicator(
@@ -260,18 +259,20 @@ class _AuthPageState extends State<AuthPage> {
                               : Text(_submitLabel),
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      SizedBox(height: 18),
                       _buildBottomAction(),
                       if (_mode == AuthMode.signIn) ...[
-                        const SizedBox(height: 24),
-                        const Divider(),
-                        const SizedBox(height: 16),
-                        const Row(
+                        SizedBox(height: 24),
+                        Divider(),
+                        SizedBox(height: 16),
+                        Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Icon(
                               Icons.info_outline_rounded,
-                              color: AppColors.textSecondary,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                               size: 20,
                             ),
                             SizedBox(width: 10),
@@ -281,7 +282,9 @@ class _AuthPageState extends State<AuthPage> {
                                 'exam. Sign in is only required to save your '
                                 'progress, history, bookmarks and scores.',
                                 style: TextStyle(
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                   height: 1.5,
                                 ),
                               ),
@@ -305,20 +308,20 @@ class _AuthPageState extends State<AuthPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(_headingIcon, color: AppColors.primary, size: 36),
-        const SizedBox(height: 18),
+        SizedBox(height: 18),
         Text(
           _heading,
-          style: const TextStyle(
-            color: AppColors.darkNavy,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 30,
             fontWeight: FontWeight.w800,
           ),
         ),
-        const SizedBox(height: 9),
+        SizedBox(height: 9),
         Text(
           _description,
-          style: const TextStyle(
-            color: AppColors.textSecondary,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 15,
             height: 1.5,
           ),
@@ -333,15 +336,17 @@ class _AuthPageState extends State<AuthPage> {
         return Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
+            Text(
               'Don’t have an account?',
-              style: TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             TextButton(
               onPressed: () {
                 _changeMode(AuthMode.signUp);
               },
-              child: const Text('Create account'),
+              child: Text('Create account'),
             ),
           ],
         );
@@ -350,15 +355,17 @@ class _AuthPageState extends State<AuthPage> {
         return Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
+            Text(
               'Already have an account?',
-              style: TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             TextButton(
               onPressed: () {
                 _changeMode(AuthMode.signIn);
               },
-              child: const Text('Sign in'),
+              child: Text('Sign in'),
             ),
           ],
         );
@@ -369,8 +376,8 @@ class _AuthPageState extends State<AuthPage> {
             onPressed: () {
               _changeMode(AuthMode.signIn);
             },
-            icon: const Icon(Icons.arrow_back_rounded),
-            label: const Text('Return to sign in'),
+            icon: Icon(Icons.arrow_back_rounded),
+            label: Text('Return to sign in'),
           ),
         );
     }
@@ -386,11 +393,13 @@ class _AuthPageState extends State<AuthPage> {
       prefixIcon: Icon(icon),
       suffixIcon: suffix,
       filled: true,
-      fillColor: AppColors.background,
+      fillColor: Theme.of(context).scaffoldBackgroundColor,
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: AppColors.border),
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.outlineVariant,
+        ),
       ),
     );
   }

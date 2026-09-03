@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:newsllm/core/navigation/main_navigation_bar.dart';
-import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
 import 'package:newsllm/features/news/data/mock_news_repository.dart';
 import 'package:newsllm/features/news/domain/models/news_article.dart';
@@ -64,47 +63,47 @@ class _SearchPageState extends State<SearchPage> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
         ),
-        title: const Text(
+        title: Text(
           'Search news',
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
-      bottomNavigationBar: const MainNavigationBar(
+      bottomNavigationBar: MainNavigationBar(
         currentDestination: MainDestination.search,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 950),
+            constraints: BoxConstraints(maxWidth: 950),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildSearchBox(),
-                const SizedBox(height: 25),
+                SizedBox(height: 25),
                 Text(
                   _query.trim().isEmpty
                       ? 'All briefings'
                       : '${results.length} search result${results.length == 1 ? '' : 's'}',
-                  style: const TextStyle(
-                    color: AppColors.darkNavy,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 Text(
                   _query.trim().isEmpty
                       ? 'Search by headline, category, summary or newspaper.'
                       : 'Results matching “${_query.trim()}”',
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 14,
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 if (results.isEmpty)
                   _buildEmptyState()
                 else
@@ -120,9 +119,9 @@ class _SearchPageState extends State<SearchPage> {
   Widget _buildSearchBox() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(17),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: TextField(
         controller: _searchController,
@@ -131,16 +130,16 @@ class _SearchPageState extends State<SearchPage> {
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: 'Search news, category or newspaper',
-          prefixIcon: const Icon(
+          prefixIcon: Icon(
             Icons.search_rounded,
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           suffixIcon: _query.isEmpty
               ? null
               : IconButton(
                   tooltip: 'Clear search',
                   onPressed: _clearSearch,
-                  icon: const Icon(Icons.close_rounded),
+                  icon: Icon(Icons.close_rounded),
                 ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
@@ -156,7 +155,7 @@ class _SearchPageState extends State<SearchPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: Material(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -168,7 +167,9 @@ class _SearchPageState extends State<SearchPage> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,7 +187,7 @@ class _SearchPageState extends State<SearchPage> {
                     color: article.accentColor,
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,48 +207,54 @@ class _SearchPageState extends State<SearchPage> {
                           ),
                           Text(
                             article.newspaperName,
-                            style: const TextStyle(
-                              color: AppColors.textSecondary,
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 9),
+                      SizedBox(height: 9),
                       Text(
                         article.title,
-                        style: const TextStyle(
-                          color: AppColors.darkNavy,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
                           height: 1.35,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Text(
                         article.summary,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14,
                           height: 1.45,
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.schedule_rounded,
                             size: 15,
-                            color: AppColors.textSecondary,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
-                          const SizedBox(width: 5),
+                          SizedBox(width: 5),
                           Text(
                             article.readingTime,
-                            style: const TextStyle(
-                              color: AppColors.textSecondary,
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                               fontSize: 12,
                             ),
                           ),
@@ -256,10 +263,10 @@ class _SearchPageState extends State<SearchPage> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                const Icon(
+                SizedBox(width: 8),
+                Icon(
                   Icons.chevron_right_rounded,
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ],
             ),
@@ -274,37 +281,37 @@ class _SearchPageState extends State<SearchPage> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         children: [
-          const Icon(
+          Icon(
             Icons.search_off_rounded,
             size: 48,
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
-          const SizedBox(height: 16),
-          const Text(
+          SizedBox(height: 16),
+          Text(
             'No briefings found',
             style: TextStyle(
-              color: AppColors.darkNavy,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 20,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 8),
+          Text(
             'Try another headline, category or newspaper name.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textSecondary, height: 1.5),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              height: 1.5,
+            ),
           ),
-          const SizedBox(height: 18),
-          OutlinedButton(
-            onPressed: _clearSearch,
-            child: const Text('Clear search'),
-          ),
+          SizedBox(height: 18),
+          OutlinedButton(onPressed: _clearSearch, child: Text('Clear search')),
         ],
       ),
     );
