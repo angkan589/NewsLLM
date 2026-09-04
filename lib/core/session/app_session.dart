@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -120,6 +121,12 @@ class AppSession extends ChangeNotifier {
         await _ensureAndLoadUserProfile(user);
       } on FirebaseException catch (error) {
         debugPrint('Could not load the Firestore user profile: $error');
+      }
+
+      try {
+        await _loadLearningRecords(user);
+      } on FirebaseException catch (error) {
+        debugPrint('Could not load the Firestore learning records: $error');
       }
     } else {
       _name = '';
@@ -271,6 +278,137 @@ class AppSession extends ChangeNotifier {
     }
   }
 
+  CollectionReference<Map<String, dynamic>> _bookmarksReference(User user) {
+    return _userReference(user).collection('bookmarks');
+  }
+
+  CollectionReference<Map<String, dynamic>> _quizAttemptsReference(User user) {
+    return _userReference(user).collection('quizAttempts');
+  }
+
+  String _bookmarkDocumentId(String title) {
+    return base64Url.encode(utf8.encode(title)).replaceAll('=', '');
+  }
+
+  Future<void> _loadLearningRecords(User user) async {
+    final results = await Future.wait([
+      _bookmarksReference(user).get(),
+      _quizAttemptsReference(user).get(),
+    ]);
+
+    if (FirebaseAuth.instance.currentUser?.uid != user.uid) {
+      return;
+    }
+
+    final bookmarkSnapshot = results[0];
+    final quizSnapshot = results[1];
+
+    _bookmarkedArticleTitles
+      ..clear()
+      ..addAll(
+        bookmarkSnapshot.docs
+            .map((document) => document.data()['articleTitle'])
+            .whereType<String>()
+            .where((title) => title.isNotEmpty),
+      );
+
+    final loadedQuizResults = <QuizResult>[];
+
+    for (final document in quizSnapshot.docs) {
+      final data = document.data();
+      final quizId = data['quizId'];
+      final quizTitle = data['quizTitle'];
+      final quizTypeName = data['quizType'];
+      final score = data['score'];
+      final totalQuestions = data['totalQuestions'];
+      final attemptNumber = data['attemptNumber'];
+      final completedAt = data['completedAt'];
+
+      if (quizId is! String ||
+          quizTitle is! String ||
+          quizTypeName is! String ||
+          score is! int ||
+          totalQuestions is! int ||
+          attemptNumber is! int ||
+          completedAt is! Timestamp) {
+        continue;
+      }
+
+      final quizType = switch (quizTypeName) {
+        'article' => QuizType.article,
+        'practice' => QuizType.practice,
+        _ => QuizType.daily,
+      };
+      final relatedArticleTitle = data['relatedArticleTitle'];
+
+      loadedQuizResults.add(
+        QuizResult(
+          quizId: quizId,
+          quizTitle: quizTitle,
+          quizType: quizType,
+          relatedArticleTitle: relatedArticleTitle is String
+              ? relatedArticleTitle
+              : null,
+          score: score,
+          totalQuestions: totalQuestions,
+          attemptNumber: attemptNumber,
+          completedAt: completedAt.toDate(),
+        ),
+      );
+    }
+
+    loadedQuizResults.sort(
+      (first, second) => first.completedAt.compareTo(second.completedAt),
+    );
+
+    _quizResults
+      ..clear()
+      ..addAll(loadedQuizResults);
+
+    notifyListeners();
+  }
+
+  Future<void> _saveBookmark(User user, String title) async {
+    final articleId = _bookmarkDocumentId(title);
+
+    try {
+      await _bookmarksReference(user).doc(articleId).set({
+        'articleId': articleId,
+        'articleTitle': title,
+        'savedAt': FieldValue.serverTimestamp(),
+      });
+    } on FirebaseException catch (error) {
+      debugPrint('Could not save the bookmark: $error');
+    }
+  }
+
+  Future<void> _deleteBookmark(User user, String title) async {
+    try {
+      await _bookmarksReference(user).doc(_bookmarkDocumentId(title)).delete();
+    } on FirebaseException catch (error) {
+      debugPrint('Could not delete the bookmark: $error');
+    }
+  }
+
+  Future<void> _saveQuizResult(User user, QuizResult result) async {
+    try {
+      await _quizAttemptsReference(user).add({
+        'userId': user.uid,
+        'quizId': result.quizId,
+        'quizTitle': result.quizTitle,
+        'quizType': result.quizType.name,
+        'relatedArticleTitle': result.relatedArticleTitle,
+        'score': result.score,
+        'totalQuestions': result.totalQuestions,
+        'attemptNumber': result.attemptNumber,
+        'accuracy': result.percentage,
+        'completedAt': Timestamp.fromDate(result.completedAt),
+      });
+    } on FirebaseException catch (error) {
+      debugPrint('Could not save the quiz attempt: $error');
+    }
+  }
+
   Future<void> signOut() async {
     await FirebaseAuth.instance.signOut();
   }
@@ -352,6 +490,11 @@ class AppSession extends ChangeNotifier {
 
     _quizResults.add(result);
     notifyListeners();
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      unawaited(_saveQuizResult(user, result));
+    }
   }
 
   bool toggleArticleBookmark(String title) {
@@ -359,10 +502,18 @@ class AppSession extends ChangeNotifier {
       return false;
     }
 
+    final user = FirebaseAuth.instance.currentUser;
+
     if (_bookmarkedArticleTitles.contains(title)) {
       _bookmarkedArticleTitles.remove(title);
+      if (user != null) {
+        unawaited(_deleteBookmark(user, title));
+      }
     } else {
       _bookmarkedArticleTitles.add(title);
+      if (user != null) {
+        unawaited(_saveBookmark(user, title));
+      }
     }
 
     notifyListeners();
@@ -373,6 +524,11 @@ class AppSession extends ChangeNotifier {
   void removeArticleBookmark(String title) {
     _bookmarkedArticleTitles.remove(title);
     notifyListeners();
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      unawaited(_deleteBookmark(user, title));
+    }
   }
 
   @override
