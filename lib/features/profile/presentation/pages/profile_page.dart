@@ -40,7 +40,12 @@ class ProfilePage extends StatelessWidget {
       return;
     }
 
-    AppSession.instance.signOut();
+    await AppSession.instance.signOut();
+
+    if (!context.mounted) {
+      return;
+    }
+
     Navigator.of(context).pop();
   }
 

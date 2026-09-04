@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
@@ -49,41 +50,112 @@ class _AuthPageState extends State<AuthPage> {
       _submitting = true;
     });
 
-    await Future<void>.delayed(Duration(milliseconds: 700));
+    try {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
 
-    if (!mounted) return;
+      switch (_mode) {
+        case AuthMode.signIn:
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: email,
+            password: password,
+          );
+          break;
 
-    setState(() {
-      _submitting = false;
-    });
+        case AuthMode.signUp:
+          final credential = await FirebaseAuth.instance
+              .createUserWithEmailAndPassword(email: email, password: password);
 
-    if (_mode == AuthMode.forgotPassword) {
+          final user = credential.user;
+
+          if (user != null) {
+            await user.updateDisplayName(_nameController.text.trim());
+            await user.reload();
+          }
+
+          AppSession.instance.refreshAuthenticationUser();
+          break;
+
+        case AuthMode.forgotPassword:
+          await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+          break;
+      }
+
+      if (!mounted) {
+        return;
+      }
+
+      if (_mode == AuthMode.forgotPassword) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'If an account exists for that email, reset instructions have been sent.',
+            ),
+          ),
+        );
+        _changeMode(AuthMode.signIn);
+        return;
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Frontend complete. Password reset will work after backend setup.',
+            _mode == AuthMode.signIn
+                ? 'Signed in successfully.'
+                : 'Account created successfully.',
           ),
         ),
       );
-      return;
-    }
-    AppSession.instance.signIn(
-      name: _mode == AuthMode.signUp
-          ? _nameController.text
-          : _emailController.text.split('@').first,
-      email: _emailController.text,
-    );
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          _mode == AuthMode.signIn
-              ? 'Frontend sign-in successful.'
-              : 'Frontend account created.',
-        ),
-      ),
-    );
 
-    Navigator.of(context).pop();
+      Navigator.of(context).pop();
+    } on FirebaseAuthException catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(_authErrorMessage(error.code))));
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Something went wrong. Please try again.'),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _submitting = false;
+        });
+      }
+    }
+  }
+
+  String _authErrorMessage(String code) {
+    switch (code) {
+      case 'email-already-in-use':
+        return 'An account already exists for this email address.';
+      case 'invalid-email':
+        return 'Enter a valid email address.';
+      case 'weak-password':
+        return 'Use a stronger password with at least 6 characters.';
+      case 'invalid-credential':
+      case 'user-not-found':
+      case 'wrong-password':
+        return 'The email address or password is incorrect.';
+      case 'user-disabled':
+        return 'This account has been disabled.';
+      case 'too-many-requests':
+        return 'Too many attempts. Wait a moment and try again.';
+      case 'network-request-failed':
+        return 'Check your internet connection and try again.';
+      default:
+        return 'Authentication failed. Please try again.';
+    }
   }
 
   @override

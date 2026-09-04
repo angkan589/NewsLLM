@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:newsllm/features/quiz/domain/models/quiz_models.dart';
 
@@ -5,6 +8,9 @@ class AppSession extends ChangeNotifier {
   AppSession._();
 
   static final AppSession instance = AppSession._();
+
+  StreamSubscription<User?>? _authSubscription;
+  bool _authenticationInitialized = false;
 
   bool _isSignedIn = false;
   String _name = '';
@@ -73,28 +79,55 @@ class AppSession extends ChangeNotifier {
     return _bookmarkedArticleTitles.contains(title);
   }
 
-  void signIn({required String name, required String email}) {
-    _isSignedIn = true;
-    _name = name.trim().isEmpty ? 'NewsLLM Student' : name.trim();
-    _email = email.trim();
+  void initializeAuthentication() {
+    if (_authenticationInitialized) {
+      return;
+    }
+
+    _authenticationInitialized = true;
+    _applyFirebaseUser(FirebaseAuth.instance.currentUser);
+    _authSubscription = FirebaseAuth.instance.authStateChanges().listen(
+      _applyFirebaseUser,
+    );
+  }
+
+  void refreshAuthenticationUser() {
+    _applyFirebaseUser(FirebaseAuth.instance.currentUser);
+  }
+
+  void _applyFirebaseUser(User? user) {
+    _isSignedIn = user != null;
+
+    if (user != null) {
+      final displayName = user.displayName?.trim() ?? '';
+      final email = user.email?.trim() ?? '';
+
+      if (displayName.isNotEmpty) {
+        _name = displayName;
+      } else if (email.isNotEmpty) {
+        _name = email.split('@').first;
+      } else {
+        _name = 'NewsLLM Student';
+      }
+      _email = email;
+    } else {
+      _name = '';
+      _email = '';
+
+      // Language and theme remain device preferences after sign-out.
+      _newsNotificationsEnabled = true;
+      _examRemindersEnabled = true;
+      _dailyBriefingReminderEnabled = true;
+
+      _bookmarkedArticleTitles.clear();
+      _quizResults.clear();
+    }
 
     notifyListeners();
   }
 
-  void signOut() {
-    _isSignedIn = false;
-    _name = '';
-    _email = '';
-
-    // Language and theme remain device preferences after sign-out.
-    _newsNotificationsEnabled = true;
-    _examRemindersEnabled = true;
-    _dailyBriefingReminderEnabled = true;
-
-    _bookmarkedArticleTitles.clear();
-    _quizResults.clear();
-
-    notifyListeners();
+  Future<void> signOut() async {
+    await FirebaseAuth.instance.signOut();
   }
 
   void updatePreferredLanguage(String language) {
@@ -188,5 +221,11 @@ class AppSession extends ChangeNotifier {
   void removeArticleBookmark(String title) {
     _bookmarkedArticleTitles.remove(title);
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
   }
 }
