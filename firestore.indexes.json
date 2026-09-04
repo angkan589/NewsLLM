@@ -1,0 +1,40 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "articles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "isPublished", "order": "ASCENDING"},
+        {"fieldPath": "publishedAt", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "articles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "isPublished", "order": "ASCENDING"},
+        {"fieldPath": "category", "order": "ASCENDING"},
+        {"fieldPath": "publishedAt", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "articles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "isPublished", "order": "ASCENDING"},
+        {"fieldPath": "sourceId", "order": "ASCENDING"},
+        {"fieldPath": "publishedAt", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "quizzes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "isPublished", "order": "ASCENDING"},
+        {"fieldPath": "type", "order": "ASCENDING"},
+        {"fieldPath": "publishedAt", "order": "DESCENDING"}
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

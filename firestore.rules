@@ -1,0 +1,68 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function ownsUserData(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow create: if ownsUserData(userId)
+        && request.resource.data.uid == userId
+        && request.resource.data.email == request.auth.token.email;
+
+      allow read, delete: if ownsUserData(userId);
+
+      allow update: if ownsUserData(userId)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.createdAt == resource.data.createdAt;
+
+      match /bookmarks/{articleId} {
+        allow read, delete: if ownsUserData(userId);
+        allow create, update: if ownsUserData(userId)
+          && request.resource.data.articleId == articleId;
+      }
+
+      match /quizAttempts/{attemptId} {
+        allow read: if ownsUserData(userId);
+        allow create: if ownsUserData(userId)
+          && request.resource.data.userId == userId;
+        allow update, delete: if false;
+      }
+
+      match /readingHistory/{articleId} {
+        allow read, delete: if ownsUserData(userId);
+        allow create, update: if ownsUserData(userId)
+          && request.resource.data.articleId == articleId;
+      }
+
+      match /stats/{statsId} {
+        allow read, write: if ownsUserData(userId);
+      }
+    }
+
+    match /sources/{sourceId} {
+      allow read: if resource.data.isActive == true;
+      allow write: if false;
+    }
+
+    match /articles/{articleId} {
+      allow read: if resource.data.isPublished == true;
+      allow write: if false;
+    }
+
+    match /quizzes/{quizId} {
+      allow read: if resource.data.isPublished == true;
+      allow write: if false;
+    }
+
+    match /quizAnswerKeys/{quizId} {
+      allow read, write: if false;
+    }
+  }
+}

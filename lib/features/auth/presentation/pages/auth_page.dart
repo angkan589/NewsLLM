@@ -71,9 +71,10 @@ class _AuthPageState extends State<AuthPage> {
           if (user != null) {
             await user.updateDisplayName(_nameController.text.trim());
             await user.reload();
+            await AppSession.instance.saveUserProfile(
+              displayName: _nameController.text.trim(),
+            );
           }
-
-          AppSession.instance.refreshAuthenticationUser();
           break;
 
         case AuthMode.forgotPassword:
