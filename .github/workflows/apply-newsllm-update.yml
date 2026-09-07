@@ -1,37 +1,30 @@
 name: Apply verified NewsLLM update
 
 on:
-  workflow_dispatch:
-    inputs:
-      patch_gzip_base64:
-        description: Prepared compressed patch
-        required: true
-        type: string
+  push:
+    branches: [main]
 
 permissions:
   contents: write
 
 jobs:
   apply-test-and-commit:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
-
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
-
       - name: Apply prepared update
-        env:
-          PATCH_GZIP_BASE64: ${{ inputs.patch_gzip_base64 }}
         run: |
-          printf '%s' "$PATCH_GZIP_BASE64" | base64 --decode | gzip -d > /tmp/newsllm.patch
+          base64 --decode newsllm-code.patch.gz.b64 | gzip -d > /tmp/newsllm.patch
           git apply /tmp/newsllm.patch
-
+          rm newsllm-code.patch.gz.b64
       - name: Format and validate
         run: |
           dart format lib
@@ -42,7 +35,6 @@ jobs:
           python -m json.tool firebase.json > /dev/null
           python -m json.tool web/manifest.json > /dev/null
           git diff --check
-
       - name: Commit verified update
         run: |
           git config user.name "github-actions[bot]"
