@@ -244,6 +244,16 @@ def meta_content(soup: BeautifulSoup, selectors: tuple[str, ...]) -> str | None:
     return None
 
 
+def script_metadata(soup: BeautifulSoup, key: str) -> str | None:
+    pattern = re.compile(rf'"{re.escape(key)}"\s*:\s*"([^"]+)"')
+    for script in soup.find_all("script"):
+        raw_script = script.string or script.get_text()
+        match = pattern.search(raw_script)
+        if match is not None:
+            return clean_text(match.group(1).replace(r"\/", "/"))
+    return None
+
+
 def publisher_from_json(article_objects: list[dict[str, object]]) -> str | None:
     for item in article_objects:
         publisher = item.get("publisher")
@@ -261,13 +271,54 @@ def publisher_from_json(article_objects: list[dict[str, object]]) -> str | None:
 def normalize_publication_date(value: object) -> str | None:
     if not isinstance(value, str):
         return None
-    match = re.search(r"\d{4}-\d{2}-\d{2}", value)
-    if match is None:
-        return None
-    try:
-        return date.fromisoformat(match.group()).isoformat()
-    except ValueError:
-        return None
+    normalized = value.replace(r"\/", "/").strip()
+    candidates = (
+        (r"(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)", "%Y-%m-%d"),
+        (r"\b\d{1,2}/\d{1,2}/\d{4}\b", "%m/%d/%Y"),
+        (
+            r"\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|"
+            r"Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|"
+            r"Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2},\s+\d{4}\b",
+            "%B %d, %Y",
+        ),
+        (
+            r"\b\d{1,2}\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|"
+            r"Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|"
+            r"Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|"
+            r"Dec(?:ember)?)\s+\d{4}\b",
+            "%d %B %Y",
+        ),
+    )
+    for pattern, date_format in candidates:
+        match = re.search(pattern, normalized, flags=re.IGNORECASE)
+        if match is None:
+            continue
+        raw_date = match.group()
+        try:
+            if date_format == "%Y-%m-%d":
+                return date.fromisoformat(raw_date).isoformat()
+            normalized_month = re.sub(
+                r"\b(Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b",
+                lambda item: {
+                    "Jan": "January",
+                    "Feb": "February",
+                    "Mar": "March",
+                    "Apr": "April",
+                    "Jun": "June",
+                    "Jul": "July",
+                    "Aug": "August",
+                    "Sep": "September",
+                    "Oct": "October",
+                    "Nov": "November",
+                    "Dec": "December",
+                }[item.group().title()],
+                raw_date,
+                flags=re.IGNORECASE,
+            )
+            return datetime.strptime(normalized_month, date_format).date().isoformat()
+        except ValueError:
+            continue
+    return None
 
 
 def infer_source_language(value: object) -> str:
@@ -282,7 +333,10 @@ def infer_category(*values: object) -> str | None:
     category_terms = (
         ("SPORTS", ("/sport", "/sports", "cricket", "football")),
         ("TECHNOLOGY", ("/technology", "/tech", "technology", "digital")),
-        ("SCIENCE", ("/science", "science", "research")),
+        (
+            "SCIENCE",
+            ("/science", "/environment", "science", "research", "environment"),
+        ),
         ("BUSINESS", ("/business", "/economy", "business", "economy", "finance")),
         (
             "INTERNATIONAL",
@@ -295,8 +349,14 @@ def infer_category(*values: object) -> str | None:
                 "/national",
                 "/dhaka",
                 "/politics",
+                "/crime-justice",
+                "/governance",
+                "/education",
                 "bangladesh",
                 "national",
+                "crime and justice",
+                "governance",
+                "education",
             ),
         ),
     )
@@ -377,6 +437,7 @@ def extract_article_html(html: str, url: str) -> ExtractedArticle:
             "time[datetime]",
         ),
     )
+    raw_date = raw_date or script_metadata(soup, "created")
 
     raw_language = next(
         (item.get("inLanguage") for item in article_objects if item.get("inLanguage")),
@@ -392,6 +453,14 @@ def extract_article_html(html: str, url: str) -> ExtractedArticle:
             if item.get("articleSection")
         ),
         None,
+    )
+    article_section = article_section or meta_content(
+        soup,
+        (
+            'meta[property="article:section"]',
+            'meta[name="article_section"]',
+            ".block-article-meta-block a[href]",
+        ),
     )
 
     if len(article_text) < MIN_ARTICLE_CHARACTERS:

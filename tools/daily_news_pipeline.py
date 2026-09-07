@@ -333,7 +333,7 @@ def run_pipeline(args: argparse.Namespace) -> int:
             print(f"  - {failure}")
     if args.discover_only:
         return 0
-    return 1 if failures and processed == 0 and duplicates == 0 else 0
+    return 1 if failures else 0
 
 
 def main() -> int:

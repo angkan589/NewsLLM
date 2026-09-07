@@ -102,6 +102,8 @@ option remains available as a reliable fallback when URL extraction fails.
 ## 7. Discover a small daily batch
 
 Configured public newspaper homepages are stored in `tools/news_sources.json`.
+Sources that block the GitHub-hosted runner are kept disabled instead of
+attempting to bypass the publisher's access controls.
 Test link discovery without using Gemini or Firestore:
 
 ```bash

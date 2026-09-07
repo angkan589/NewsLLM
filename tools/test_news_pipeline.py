@@ -6,6 +6,7 @@ from tools.daily_news_pipeline import SourceConfig, canonical_url, looks_like_ar
 from tools.generate_news_content import (
     extract_article_html,
     infer_category,
+    normalize_publication_date,
     validate_public_url,
 )
 
@@ -57,6 +58,46 @@ class ArticleExtractionTests(unittest.TestCase):
         self.assertEqual(infer_category("/business/economy/story"), "BUSINESS")
         self.assertEqual(infer_category("/sport/cricket/story"), "SPORTS")
         self.assertEqual(infer_category("/world/asia/story"), "INTERNATIONAL")
+        self.assertEqual(infer_category("/news/environment/story"), "SCIENCE")
+        self.assertEqual(infer_category("Crime and Justice"), "NATIONAL")
+
+    def test_normalizes_daily_star_script_date(self):
+        self.assertEqual(
+            normalize_publication_date("Mon, 09/07/2026 - 09:45"),
+            "2026-09-07",
+        )
+
+    def test_extracts_daily_star_script_date_and_category(self):
+        body = (
+            "Bangladesh Bank announced a policy update for depositors. "
+            "Officials explained the implementation timeline and the relevant "
+            "financial safeguards for customers across the country. "
+            "The report described how participating banks would process valid "
+            "requests under the newly announced policy."
+        )
+        html = f"""
+        <html lang="en">
+          <head>
+            <meta property="og:title" content="Bank announces policy update">
+            <meta property="og:site_name" content="The Daily Star">
+            <script>
+              gtag("event", "custom", {{"created":"Mon, 09\\/07\\/2026 - 09:45"}});
+            </script>
+          </head>
+          <body>
+            <div class="block-article-meta-block"><a href="/business">BUSINESS</a></div>
+            <article><p>{body}</p></article>
+          </body>
+        </html>
+        """
+
+        result = extract_article_html(
+            html,
+            "https://www.thedailystar.net/business/news/policy-update-4266801",
+        )
+
+        self.assertEqual(result.publication_date, "2026-09-07")
+        self.assertEqual(result.category, "BUSINESS")
 
 
 class DiscoveryTests(unittest.TestCase):
