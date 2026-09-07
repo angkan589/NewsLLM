@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
-import 'package:newsllm/features/news/data/mock_news_repository.dart';
+import 'package:newsllm/features/news/data/firestore_news_repository.dart';
 import 'package:newsllm/features/news/domain/models/news_article.dart';
 
 class NewspaperBriefingsPage extends StatelessWidget {
@@ -18,7 +18,7 @@ class NewspaperBriefingsPage extends StatelessWidget {
   final Color color;
 
   List<NewsArticle> get _articles {
-    return MockNewsRepository.articles.where((article) {
+    return FirestoreNewsRepository.articles.where((article) {
       return article.newspaperName.toLowerCase() == newspaperName.toLowerCase();
     }).toList();
   }

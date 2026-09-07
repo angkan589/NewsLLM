@@ -4,6 +4,7 @@ import 'package:newsllm/core/navigation/main_navigation_bar.dart';
 import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/core/theme/app_theme.dart';
 import 'package:newsllm/features/home/presentation/pages/home_page.dart';
+import 'package:newsllm/features/news/data/firestore_news_repository.dart';
 import 'package:newsllm/firebase_options.dart';
 
 Future<void> main() async {
@@ -12,6 +13,7 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await AppSession.instance.initializeAuthentication();
+  await FirestoreNewsRepository.initialize();
 
   runApp(const NewsLLMApp());
 }

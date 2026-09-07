@@ -3,6 +3,8 @@ import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/features/home/presentation/widgets/home_content_sections.dart';
 import 'package:newsllm/features/home/presentation/widgets/newspaper_sources_section.dart';
 import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
+import 'package:newsllm/features/news/data/firestore_news_repository.dart';
+import 'package:newsllm/features/news/domain/models/news_article.dart';
 import 'package:newsllm/features/quiz/presentation/pages/daily_quiz_page.dart';
 import 'package:newsllm/features/home/presentation/pages/category_news_page.dart';
 import 'package:newsllm/features/auth/presentation/pages/auth_page.dart';
@@ -19,6 +21,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final isCompact = screenWidth < 900;
+    final leadArticle = FirestoreNewsRepository.articles.first;
 
     return Scaffold(
       backgroundColor: context.pageBackground,
@@ -47,18 +50,23 @@ class HomePage extends StatelessWidget {
                     if (isCompact)
                       Column(
                         children: [
-                          _buildLeadStory(context),
+                          _buildLeadStory(context, leadArticle),
                           SizedBox(height: 20),
-                          _buildStudyPanel(context),
+                          _buildStudyPanel(context, leadArticle),
                         ],
                       )
                     else
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(flex: 2, child: _buildLeadStory(context)),
+                          Expanded(
+                            flex: 2,
+                            child: _buildLeadStory(context, leadArticle),
+                          ),
                           SizedBox(width: 24),
-                          Expanded(child: _buildStudyPanel(context)),
+                          Expanded(
+                            child: _buildStudyPanel(context, leadArticle),
+                          ),
                         ],
                       ),
                     SizedBox(height: 72),
@@ -259,7 +267,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildLeadStory(BuildContext context) {
+  Widget _buildLeadStory(BuildContext context, NewsArticle article) {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -276,7 +284,7 @@ class HomePage extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF153E75), Color(0xFF2563EB)],
+                colors: [article.accentColor, AppColors.darkNavy],
               ),
               borderRadius: BorderRadius.vertical(top: Radius.circular(21)),
             ),
@@ -286,7 +294,7 @@ class HomePage extends StatelessWidget {
                   right: 30,
                   bottom: 24,
                   child: Icon(
-                    Icons.account_balance_outlined,
+                    _categoryIcon(article.category),
                     color: Color(0x55FFFFFF),
                     size: 150,
                   ),
@@ -304,7 +312,7 @@ class HomePage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: Text(
-                      'LEAD STORY • NATIONAL',
+                      'LEAD STORY • ${article.category}',
                       style: TextStyle(
                         color: AppColors.primary,
                         fontSize: 11,
@@ -323,7 +331,7 @@ class HomePage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Bangladesh introduces a national green growth roadmap',
+                  article.title,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 25,
@@ -332,8 +340,7 @@ class HomePage extends StatelessWidget {
                 ),
                 SizedBox(height: 12),
                 Text(
-                  'The roadmap prioritises renewable energy, sustainable jobs, '
-                  'and climate-resilient infrastructure across the country.',
+                  article.summary,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                     height: 1.55,
@@ -349,7 +356,7 @@ class HomePage extends StatelessWidget {
                     ),
                     SizedBox(width: 7),
                     Text(
-                      '4 min read',
+                      article.readingTime,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 13,
@@ -360,17 +367,8 @@ class HomePage extends StatelessWidget {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => ArticleDetailPage(
-                              newspaperName: 'The Daily Star',
-                              category: 'NATIONAL',
-                              title:
-                                  'Bangladesh launches ambitious green development roadmap',
-                              summary:
-                                  'The roadmap prioritises renewable energy, sustainable jobs, '
-                                  'and climate-resilient infrastructure across the country.',
-                              readingTime: '4 min read',
-                              accentColor: AppColors.primary,
-                            ),
+                            builder: (context) =>
+                                ArticleDetailPage(article: article),
                           ),
                         );
                       },
@@ -387,7 +385,9 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildStudyPanel(BuildContext context) {
+  Widget _buildStudyPanel(BuildContext context, NewsArticle article) {
+    final quickFacts = article.facts.take(3).toList();
+
     return Column(
       children: [
         Container(
@@ -418,11 +418,16 @@ class HomePage extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 18),
-              _factRow(context, 'WHO', 'Ministry of Environment'),
-              Divider(height: 24),
-              _factRow(context, 'WHAT', 'Green Growth Roadmap'),
-              Divider(height: 24),
-              _factRow(context, 'WHY', 'Climate-resilient economy'),
+              ...List.generate(quickFacts.length, (index) {
+                final fact = quickFacts[index];
+
+                return Column(
+                  children: [
+                    if (index > 0) Divider(height: 24),
+                    _factRow(context, fact.label, fact.value),
+                  ],
+                );
+              }),
             ],
           ),
         ),
@@ -500,6 +505,18 @@ class HomePage extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  IconData _categoryIcon(String category) {
+    return switch (category.toUpperCase()) {
+      'NATIONAL' => Icons.account_balance_outlined,
+      'INTERNATIONAL' => Icons.public_rounded,
+      'BUSINESS' => Icons.trending_up_rounded,
+      'SPORTS' => Icons.sports_cricket_rounded,
+      'SCIENCE' || 'SCIENCE & TECH' => Icons.science_outlined,
+      'TECHNOLOGY' => Icons.memory_rounded,
+      _ => Icons.article_outlined,
+    };
   }
 }
 

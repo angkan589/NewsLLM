@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
-import 'package:newsllm/features/news/data/mock_news_repository.dart';
+import 'package:newsllm/features/news/data/firestore_news_repository.dart';
 import 'package:newsllm/features/news/domain/models/news_article.dart';
 
 class FactBankPage extends StatefulWidget {
@@ -15,7 +15,7 @@ class _FactBankPageState extends State<FactBankPage> {
   String _selectedCategory = 'All';
 
   List<String> get _categories {
-    final categories = MockNewsRepository.articles
+    final categories = FirestoreNewsRepository.articles
         .map((article) => article.category)
         .toSet()
         .toList();
@@ -25,10 +25,10 @@ class _FactBankPageState extends State<FactBankPage> {
 
   List<NewsArticle> get _articles {
     if (_selectedCategory == 'All') {
-      return MockNewsRepository.articles;
+      return FirestoreNewsRepository.articles;
     }
 
-    return MockNewsRepository.articlesByCategory(_selectedCategory);
+    return FirestoreNewsRepository.articlesByCategory(_selectedCategory);
   }
 
   @override

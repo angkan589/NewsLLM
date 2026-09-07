@@ -48,19 +48,44 @@ class ArticleDetailPage extends StatefulWidget {
 class _ArticleDetailPageState extends State<ArticleDetailPage> {
   bool _isBookmarked = false;
 
-  final List<Map<String, String>> _facts = const [
-    {'label': 'WHO', 'value': 'Government agencies and relevant stakeholders'},
-    {
-      'label': 'WHAT',
-      'value': 'A new national initiative and implementation roadmap',
-    },
-    {'label': 'WHEN', 'value': 'Announced in today’s current-affairs coverage'},
-    {'label': 'WHERE', 'value': 'Bangladesh'},
-    {
-      'label': 'WHY',
-      'value': 'To support sustainable and inclusive development',
-    },
-  ];
+  List<NewsFact> get _resolvedFacts {
+    if (widget.article?.facts.isNotEmpty == true) {
+      return widget.article!.facts;
+    }
+
+    return const [
+      NewsFact(
+        label: 'WHO',
+        value: 'Government agencies and relevant stakeholders',
+      ),
+      NewsFact(
+        label: 'WHAT',
+        value: 'A new national initiative and implementation roadmap',
+      ),
+      NewsFact(
+        label: 'WHEN',
+        value: 'Announced in today’s current-affairs coverage',
+      ),
+      NewsFact(label: 'WHERE', value: 'Bangladesh'),
+      NewsFact(
+        label: 'WHY',
+        value: 'To support sustainable and inclusive development',
+      ),
+    ];
+  }
+
+  List<String> get _resolvedKeyTerms {
+    if (widget.article?.keyTerms.isNotEmpty == true) {
+      return widget.article!.keyTerms;
+    }
+
+    return const [
+      'Sustainable development',
+      'Public policy',
+      'Bangladesh',
+      'National roadmap',
+    ];
+  }
 
   @override
   void initState() {
@@ -72,6 +97,10 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
   }
 
   QuizDefinition get _articleQuiz {
+    if (widget.article?.quizQuestions.isNotEmpty == true) {
+      return widget.article!.quiz;
+    }
+
     final quizId = widget.resolvedTitle
         .toLowerCase()
         .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
@@ -400,12 +429,9 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
           child: Wrap(
             spacing: 9,
             runSpacing: 9,
-            children: [
-              _Keyword(label: 'Sustainable development'),
-              _Keyword(label: 'Public policy'),
-              _Keyword(label: 'Bangladesh'),
-              _Keyword(label: 'National roadmap'),
-            ],
+            children: _resolvedKeyTerms
+                .map((term) => _Keyword(label: term))
+                .toList(),
           ),
         ),
       ],
@@ -418,7 +444,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
       iconColor: Color(0xFFD97706),
       title: 'Quick revision',
       child: Column(
-        children: _facts.map((fact) {
+        children: _resolvedFacts.map((fact) {
           return Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -435,7 +461,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                 SizedBox(
                   width: 58,
                   child: Text(
-                    fact['label']!,
+                    fact.label,
                     style: TextStyle(
                       color: widget.resolvedAccentColor,
                       fontSize: 11,
@@ -445,7 +471,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
                 ),
                 Expanded(
                   child: Text(
-                    fact['value']!,
+                    fact.value,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 14,

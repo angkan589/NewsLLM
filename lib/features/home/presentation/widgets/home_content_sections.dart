@@ -6,7 +6,7 @@ import 'package:newsllm/features/auth/presentation/pages/auth_page.dart';
 import 'package:newsllm/features/fact_bank/presentation/pages/fact_bank_page.dart';
 import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
 import 'package:newsllm/features/home/presentation/pages/category_news_page.dart';
-import 'package:newsllm/features/news/data/mock_news_repository.dart';
+import 'package:newsllm/features/news/data/firestore_news_repository.dart';
 import 'package:newsllm/features/news/domain/models/news_article.dart';
 import 'package:newsllm/features/progress/presentation/pages/exam_history_page.dart';
 import 'package:newsllm/features/quiz/presentation/pages/quiz_hub_page.dart';
@@ -18,7 +18,7 @@ class HomeContentSections extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final articles = MockNewsRepository.articles;
+        final articles = FirestoreNewsRepository.articles;
         final isCompact = constraints.maxWidth < 850;
         final newsCardWidth = isCompact
             ? constraints.maxWidth
@@ -227,28 +227,17 @@ class HomeContentSections extends StatelessWidget {
   }
 
   Widget _buildFactBank(BuildContext context, bool isCompact) {
-    const facts = [
-      _FactData(
-        number: '01',
-        text:
-            'Bangladesh’s green roadmap prioritises renewable energy and sustainable employment.',
+    final selectedFacts = FirestoreNewsRepository.articles
+        .expand((article) => article.facts)
+        .take(4)
+        .toList();
+    final facts = List.generate(
+      selectedFacts.length,
+      (index) => _FactData(
+        number: '${index + 1}'.padLeft(2, '0'),
+        text: selectedFacts[index].value,
       ),
-      _FactData(
-        number: '02',
-        text:
-            'The new ocean framework focuses on biodiversity beyond national waters.',
-      ),
-      _FactData(
-        number: '03',
-        text:
-            'Satellite-based flood alerts will support more localised warnings.',
-      ),
-      _FactData(
-        number: '04',
-        text:
-            'Digital trade systems reduce paperwork for regional transactions.',
-      ),
-    ];
+    );
 
     return Container(
       width: double.infinity,

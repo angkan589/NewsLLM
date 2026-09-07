@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:newsllm/core/navigation/main_navigation_bar.dart';
 import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
-import 'package:newsllm/features/news/data/mock_news_repository.dart';
+import 'package:newsllm/features/news/data/firestore_news_repository.dart';
 import 'package:newsllm/features/news/domain/models/news_article.dart';
 
 class SearchPage extends StatefulWidget {
@@ -16,7 +16,7 @@ class _SearchPageState extends State<SearchPage> {
   String _query = '';
 
   List<NewsArticle> get _results {
-    return MockNewsRepository.search(_query);
+    return FirestoreNewsRepository.search(_query);
   }
 
   @override

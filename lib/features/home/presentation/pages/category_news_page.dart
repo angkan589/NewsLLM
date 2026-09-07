@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
-import 'package:newsllm/features/news/data/mock_news_repository.dart';
+import 'package:newsllm/features/news/data/firestore_news_repository.dart';
 import 'package:newsllm/features/news/domain/models/news_article.dart';
 
 class CategoryNewsPage extends StatelessWidget {
@@ -11,10 +11,10 @@ class CategoryNewsPage extends StatelessWidget {
 
   List<NewsArticle> get _articles {
     if (category.toLowerCase() == 'today') {
-      return MockNewsRepository.articles;
+      return FirestoreNewsRepository.articles;
     }
 
-    return MockNewsRepository.articlesByCategory(category);
+    return FirestoreNewsRepository.articlesByCategory(category);
   }
 
   @override
