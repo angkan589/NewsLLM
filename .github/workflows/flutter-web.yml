@@ -1,0 +1,63 @@
+name: Flutter Web CI and Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: newsllm-web-production
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build web release
+        run: flutter build web --release
+
+      - name: Prepare temporary Firebase credential
+        env:
+          FIREBASE_SERVICE_ACCOUNT_B64: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}
+        run: |
+          test -n "$FIREBASE_SERVICE_ACCOUNT_B64" || {
+            echo "Missing GitHub secret: FIREBASE_SERVICE_ACCOUNT_B64" >&2
+            exit 1
+          }
+          echo "$FIREBASE_SERVICE_ACCOUNT_B64" \
+            | base64 --decode \
+            > "$RUNNER_TEMP/firebase-service-account.json"
+          python -m json.tool "$RUNNER_TEMP/firebase-service-account.json" \
+            > /dev/null
+
+      - name: Deploy to Firebase Hosting
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-service-account.json
+        run: npx --yes firebase-tools deploy --only hosting --project newsllm-21fad --non-interactive
+
+      - name: Remove temporary credential
+        if: always()
+        run: rm -f "$RUNNER_TEMP/firebase-service-account.json"
