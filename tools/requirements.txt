@@ -1,3 +1,5 @@
 firebase-admin>=7.5,<8
 google-genai>=2.7,<3
 pydantic>=2.0,<3
+beautifulsoup4>=4.12,<5
+httpx>=0.28,<0.29
