@@ -73,7 +73,9 @@ publisher login or paywall.
 ## 5. Review the preview
 
 Check that names, dates, numbers, summaries, translations, correct answers,
-and explanations are supported by the original article.
+and explanations are supported by the original article. Confirm that future
+or scheduled events were not rewritten as completed events, and that context
+was not rewritten as an unsupported cause.
 
 ## 6. Publish the reviewed result
 
@@ -96,3 +98,64 @@ document is the validated row, and the final Firestore batch is the `INSERT`.
 
 This is a daily batch/admin workflow, not live news streaming. The local file
 option remains available as a reliable fallback when URL extraction fails.
+
+## 7. Discover a small daily batch
+
+Configured public newspaper homepages are stored in `tools/news_sources.json`.
+Test link discovery without using Gemini or Firestore:
+
+```bash
+"$HOME/Downloads/newsllm-admin-env/bin/python" \
+  tools/daily_news_pipeline.py \
+  --discover-only
+```
+
+Generate at most one preview from each source and three overall:
+
+```bash
+"$HOME/Downloads/newsllm-admin-env/bin/python" \
+  tools/daily_news_pipeline.py \
+  --max-articles 3 \
+  --per-source 1
+```
+
+Publishing is intentionally harder to trigger and never overwrites an existing
+article. A trusted batch requires both flags:
+
+```bash
+"$HOME/Downloads/newsllm-admin-env/bin/python" \
+  tools/daily_news_pipeline.py \
+  --max-articles 3 \
+  --per-source 1 \
+  --publish \
+  --yes
+```
+
+If an article already exists, the generator checks Firestore and skips it
+before calling Gemini, avoiding an unnecessary API request.
+
+## 8. Optional GitHub Actions schedule
+
+`.github/workflows/daily-news.yml` provides both a manual run and a daily
+06:15 Bangladesh-time schedule. Scheduled publishing is disabled by default.
+
+The repository must have these GitHub Actions secrets:
+
+- `GEMINI_API_KEY`
+- `FIREBASE_SERVICE_ACCOUNT_B64`
+
+Create the base64 service-account value on macOS without printing it:
+
+```bash
+base64 < "$HOME/Downloads/newsllm-service-account.json" \
+  | tr -d '\n' \
+  | pbcopy
+```
+
+Paste that clipboard value into the `FIREBASE_SERVICE_ACCOUNT_B64` GitHub
+secret. After a successful manual workflow test, create the repository Actions
+variable `ENABLE_DAILY_PIPELINE` with the exact value `true` to enable the
+schedule. Leaving the variable unset keeps scheduled publishing disabled.
+
+The schedule discovers a maximum of three articles per run. GitHub schedules
+may start later than the exact cron time during periods of high load.

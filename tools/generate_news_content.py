@@ -564,6 +564,15 @@ Requirements:
    answer, and a short explanation. English and Bangla option indexes must
    represent the same answers.
 7. Avoid political persuasion, speculation, and sensational wording.
+8. Preserve the event's exact temporal status in both languages. Relative to
+   the publication date, clearly distinguish what already happened, what is
+   happening, and what is announced, proposed, scheduled, or expected. A date
+   after the publication date must not be described as already completed.
+9. Do not turn timing, background, or political context into causation. Use a
+   WHY fact only when the source explicitly states the reason; otherwise use a
+   neutral CONTEXT fact or omit that detail.
+10. Before returning JSON, cross-check every date, number, name, fact, quiz
+    answer, explanation, and Bengali tense against the supplied source.
 
 Source article:
 --- BEGIN SOURCE ARTICLE ---
@@ -655,6 +664,20 @@ def verify_credentials() -> None:
         )
 
 
+def firestore_database(args: argparse.Namespace):
+    verify_credentials()
+    try:
+        firebase_admin.get_app()
+    except ValueError:
+        firebase_admin.initialize_app(options={"projectId": args.project_id})
+    return firestore.client()
+
+
+def article_exists(args: argparse.Namespace, article_id: str) -> bool:
+    database = firestore_database(args)
+    return database.collection("articles").document(article_id).get().exists
+
+
 def publish_to_firestore(
     args: argparse.Namespace,
     article: str,
@@ -662,14 +685,7 @@ def publish_to_firestore(
     article_id: str,
     generated: GeneratedArticlePackage,
 ) -> None:
-    verify_credentials()
-
-    try:
-        firebase_admin.get_app()
-    except ValueError:
-        firebase_admin.initialize_app(options={"projectId": args.project_id})
-
-    database = firestore.client()
+    database = firestore_database(args)
     source_id = slugify(args.source_name)
     source_reference = database.collection("sources").document(source_id)
     article_reference = database.collection("articles").document(article_id)
@@ -726,7 +742,9 @@ def publish_to_firestore(
             "aiMetadata": {
                 "provider": "Google Gemini",
                 "model": args.model,
-                "reviewStatus": "manually-published",
+                "reviewStatus": (
+                    "automated-published" if args.yes else "manually-published"
+                ),
                 "generatedAt": firestore.SERVER_TIMESTAMP,
             },
             "updatedAt": firestore.SERVER_TIMESTAMP,
@@ -748,6 +766,11 @@ def main() -> int:
         article_id = (
             f"{publication_date.isoformat()}-{slugify(args.headline)}"
         )
+        if args.publish and article_exists(args, article_id) and not args.force:
+            raise ValueError(
+                f"Article {article_id!r} already exists. Skipping before "
+                "calling Gemini."
+            )
         generated = generate_package(args, article)
         preview_result(args, article_id, generated)
 

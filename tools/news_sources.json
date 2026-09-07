@@ -1,0 +1,74 @@
+[
+  {
+    "slug": "dhaka-tribune",
+    "name": "Dhaka Tribune",
+    "homeUrl": "https://www.dhakatribune.com",
+    "allowedHosts": ["www.dhakatribune.com", "dhakatribune.com"],
+    "articlePatterns": ["/\\d{5,}/"],
+    "excludedPaths": [
+      "/opinion",
+      "/showtime",
+      "/lifestyle",
+      "/photo",
+      "/video",
+      "/topic",
+      "/author",
+      "/archive"
+    ],
+    "sourceLanguage": "English",
+    "enabled": true
+  },
+  {
+    "slug": "daily-star",
+    "name": "The Daily Star",
+    "homeUrl": "https://www.thedailystar.net",
+    "allowedHosts": ["www.thedailystar.net", "thedailystar.net"],
+    "articlePatterns": ["-\\d{6,}$"],
+    "excludedPaths": [
+      "/opinion",
+      "/entertainment",
+      "/lifestyle",
+      "/photo",
+      "/video",
+      "/author",
+      "/archive"
+    ],
+    "sourceLanguage": "English",
+    "enabled": true
+  },
+  {
+    "slug": "bdnews24",
+    "name": "bdnews24.com",
+    "homeUrl": "https://bdnews24.com",
+    "allowedHosts": ["bdnews24.com", "www.bdnews24.com"],
+    "articlePatterns": ["/(?:[0-9a-f]{10,}|\\d{5,})$"],
+    "excludedPaths": [
+      "/opinion",
+      "/entertainment",
+      "/lifestyle",
+      "/media-en",
+      "/photo",
+      "/video"
+    ],
+    "sourceLanguage": "English",
+    "enabled": false
+  },
+  {
+    "slug": "prothom-alo-english",
+    "name": "Prothom Alo English",
+    "homeUrl": "https://en.prothomalo.com",
+    "allowedHosts": ["en.prothomalo.com"],
+    "articlePatterns": [
+      "/(?=[a-z0-9]{10,}$)(?=[a-z0-9]*\\d)[a-z0-9]+$"
+    ],
+    "excludedPaths": [
+      "/opinion",
+      "/entertainment",
+      "/lifestyle",
+      "/photo",
+      "/video"
+    ],
+    "sourceLanguage": "English",
+    "enabled": true
+  }
+]
