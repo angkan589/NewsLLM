@@ -26,6 +26,7 @@
     "articlePatterns": ["-\\d{6,}$"],
     "excludedPaths": [
       "/opinion",
+      "/culture",
       "/entertainment",
       "/lifestyle",
       "/photo",
