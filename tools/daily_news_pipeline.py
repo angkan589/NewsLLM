@@ -263,7 +263,19 @@ def process_article(
         return "processed", output
     if "already exists" in output:
         return "duplicate", output
+    if is_candidate_rejection(output):
+        return "skipped", output
     return "failed", output
+
+
+def is_candidate_rejection(output: str) -> bool:
+    """Return true for expected non-news links that discovery may surface."""
+    expected_messages = (
+        "Could not detect required metadata",
+        "Article is too short",
+        "Could not extract enough article text",
+    )
+    return any(message in output for message in expected_messages)
 
 
 def run_pipeline(args: argparse.Namespace) -> int:
@@ -278,6 +290,7 @@ def run_pipeline(args: argparse.Namespace) -> int:
 
     processed = 0
     duplicates = 0
+    rejected = 0
     failures: list[str] = []
     for source in sources:
         if processed >= args.max_articles:
@@ -311,6 +324,10 @@ def run_pipeline(args: argparse.Namespace) -> int:
                 duplicates += 1
                 print("  Already in Firestore; trying the next article.")
                 continue
+            if status == "skipped":
+                rejected += 1
+                print("  Skipped unsuitable candidate; trying the next article.")
+                continue
             if status == "failed":
                 failures.append(f"{article.url}: {output}")
                 print(f"  Failed: {output}")
@@ -325,6 +342,7 @@ def run_pipeline(args: argparse.Namespace) -> int:
     print(f"  Mode: {mode}")
     print(f"  Processed: {processed}")
     print(f"  Existing articles skipped: {duplicates}")
+    print(f"  Unsuitable candidates skipped: {rejected}")
     print(f"  Failures: {len(failures)}")
 
     if failures:
