@@ -27,8 +27,8 @@ jobs:
           rm newsllm-code.patch.gz.b64
       - name: Format and validate
         run: |
-          dart format lib
           flutter pub get
+          dart format lib
           flutter analyze
           flutter test
           flutter build web --release
