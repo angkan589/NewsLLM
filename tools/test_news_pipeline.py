@@ -2,7 +2,12 @@ import json
 import re
 import unittest
 
-from tools.daily_news_pipeline import SourceConfig, canonical_url, looks_like_article
+from tools.daily_news_pipeline import (
+    SourceConfig,
+    canonical_url,
+    is_candidate_rejection,
+    looks_like_article,
+)
 from tools.generate_news_content import (
     extract_article_html,
     infer_category,
@@ -134,6 +139,14 @@ class DiscoveryTests(unittest.TestCase):
                 "https://attacker.example/news/example-story-123456",
             )
         )
+
+    def test_expected_metadata_failure_is_candidate_rejection(self):
+        self.assertTrue(
+            is_candidate_rejection(
+                "Error: Could not detect required metadata: --category."
+            )
+        )
+        self.assertFalse(is_candidate_rejection("Gemini API request failed"))
         self.assertFalse(
             looks_like_article(
                 self.source,
