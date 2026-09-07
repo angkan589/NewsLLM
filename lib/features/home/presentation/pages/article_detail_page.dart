@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:newsllm/core/localization/localized_text.dart';
 import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/features/auth/presentation/pages/auth_page.dart';
@@ -166,7 +167,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
         surfaceTintColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          tooltip: 'Back',
+          tooltip: localizedUi('Back'),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -178,7 +179,9 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
         ),
         actions: [
           IconButton(
-            tooltip: _isBookmarked ? 'Remove bookmark' : 'Save bookmark',
+            tooltip: localizedUi(
+              _isBookmarked ? 'Remove bookmark' : 'Save bookmark',
+            ),
             onPressed: _toggleBookmark,
             icon: Icon(
               _isBookmarked

@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:newsllm/core/localization/localized_text.dart';
 import 'package:newsllm/core/navigation/main_navigation_bar.dart';
 import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
 import 'package:newsllm/features/news/data/firestore_news_repository.dart';
@@ -59,7 +60,7 @@ class _SearchPageState extends State<SearchPage> {
         surfaceTintColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          tooltip: 'Back',
+          tooltip: localizedUi('Back'),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -129,7 +130,7 @@ class _SearchPageState extends State<SearchPage> {
         onChanged: _updateSearch,
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
-          hintText: 'Search news, category or newspaper',
+          hintText: localizedUi('Search news, category or newspaper'),
           prefixIcon: Icon(
             Icons.search_rounded,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -137,7 +138,7 @@ class _SearchPageState extends State<SearchPage> {
           suffixIcon: _query.isEmpty
               ? null
               : IconButton(
-                  tooltip: 'Clear search',
+                  tooltip: localizedUi('Clear search'),
                   onPressed: _clearSearch,
                   icon: Icon(Icons.close_rounded),
                 ),

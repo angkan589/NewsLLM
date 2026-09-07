@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:newsllm/core/localization/localized_text.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/features/home/presentation/pages/newspaper_briefings_page.dart';
 
@@ -371,7 +372,7 @@ class _CarouselButton extends StatelessWidget {
         icon: Icon(icon),
         color: AppColors.darkNavy,
         iconSize: 23,
-        tooltip: 'Slide newspapers',
+        tooltip: localizedUi('Slide newspapers'),
       ),
     );
   }

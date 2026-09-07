@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:newsllm/core/localization/localized_text.dart';
 import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/core/theme/theme_context.dart';

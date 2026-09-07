@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:newsllm/core/localization/localized_text.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
 import 'package:newsllm/features/news/data/firestore_news_repository.dart';
@@ -41,7 +42,7 @@ class _FactBankPageState extends State<FactBankPage> {
         surfaceTintColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          tooltip: 'Back',
+          tooltip: localizedUi('Back'),
           onPressed: () {
             Navigator.of(context).pop();
           },

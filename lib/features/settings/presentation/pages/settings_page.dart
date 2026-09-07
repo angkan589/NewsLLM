@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:newsllm/core/localization/localized_text.dart';
 import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
 
@@ -15,7 +16,7 @@ class SettingsPage extends StatelessWidget {
         surfaceTintColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          tooltip: 'Back',
+          tooltip: localizedUi('Back'),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -86,8 +87,8 @@ class SettingsPage extends StatelessWidget {
           ),
           SizedBox(height: 14),
           Text(
-            'Full Bengali content will be connected when multilingual '
-            'AI content generation is implemented.',
+            'Bangla and English content is available for generated '
+            'briefings and quizzes.',
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 12,
@@ -157,9 +158,8 @@ class SettingsPage extends StatelessWidget {
           SizedBox(width: 12),
           Expanded(
             child: Text(
-              'These preferences currently remain only while the frontend '
-              'application is running. Permanent account synchronization '
-              'will be added during backend development.',
+              'Signed-in preferences and learning records are synchronized '
+              'securely with Firebase.',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
                 height: 1.5,

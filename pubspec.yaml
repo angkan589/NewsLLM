@@ -1,5 +1,5 @@
 name: newsllm
-description: "A new Flutter project."
+description: "Bilingual, exam-focused daily news briefings and quizzes."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -61,7 +61,6 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/newspapers/
     - assets/images/logo.png
 
   # To add assets to your application, add an assets section, like this:

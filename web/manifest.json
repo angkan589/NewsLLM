@@ -1,11 +1,11 @@
 {
-    "name": "newsllm",
-    "short_name": "newsllm",
+    "name": "NewsLLM — Smart News, Smarter Preparation",
+    "short_name": "NewsLLM",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F8FAFC",
+    "theme_color": "#0F2744",
+    "description": "Bilingual, exam-focused daily news briefings, facts and quizzes.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

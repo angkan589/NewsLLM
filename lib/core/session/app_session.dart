@@ -36,6 +36,8 @@ class AppSession extends ChangeNotifier {
 
   String get preferredLanguage => _preferredLanguage;
 
+  bool get isBangla => _preferredLanguage == 'বাংলা';
+
   ThemeMode get themeMode => _themeMode;
 
   bool get isDarkMode => _themeMode == ThemeMode.dark;

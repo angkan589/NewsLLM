@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:newsllm/core/localization/localized_text.dart';
 import 'package:flutter/rendering.dart';
 import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/features/auth/presentation/pages/auth_page.dart';
@@ -164,7 +165,10 @@ class MainNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: NavigationVisibilityController.instance,
+      animation: Listenable.merge([
+        NavigationVisibilityController.instance,
+        AppSession.instance,
+      ]),
       builder: (context, child) {
         final visible = NavigationVisibilityController.instance.visible;
 
@@ -211,26 +215,26 @@ class MainNavigationBar extends StatelessWidget {
                             NavigationDestination(
                               icon: Icon(Icons.home_outlined),
                               selectedIcon: Icon(Icons.home_rounded),
-                              label: 'Home',
+                              label: localizedUi('Home'),
                             ),
                             NavigationDestination(
                               icon: Icon(Icons.search_rounded),
-                              label: 'Search',
+                              label: localizedUi('Search'),
                             ),
                             NavigationDestination(
                               icon: Icon(Icons.quiz_outlined),
                               selectedIcon: Icon(Icons.quiz_rounded),
-                              label: 'Quiz',
+                              label: localizedUi('Quiz'),
                             ),
                             NavigationDestination(
                               icon: Icon(Icons.bookmark_border_rounded),
                               selectedIcon: Icon(Icons.bookmark_rounded),
-                              label: 'Saved',
+                              label: localizedUi('Saved'),
                             ),
                             NavigationDestination(
                               icon: Icon(Icons.person_outline_rounded),
                               selectedIcon: Icon(Icons.person_rounded),
-                              label: 'Profile',
+                              label: localizedUi('Profile'),
                             ),
                           ],
                         ),

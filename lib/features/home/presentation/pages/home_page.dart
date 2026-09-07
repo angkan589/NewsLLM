@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:newsllm/core/localization/localized_text.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/features/home/presentation/widgets/home_content_sections.dart';
 import 'package:newsllm/features/home/presentation/widgets/newspaper_sources_section.dart';
@@ -109,7 +110,7 @@ class HomePage extends StatelessWidget {
                 context,
               ).push(MaterialPageRoute(builder: (context) => SearchPage()));
             },
-            tooltip: 'Search',
+            tooltip: localizedUi('Search'),
             icon: Icon(Icons.search),
           ),
           SizedBox(width: 8),
@@ -151,9 +152,9 @@ class HomePage extends StatelessWidget {
                 ),
                 SizedBox(width: 8),
                 IconButton(
-                  tooltip: session.isDarkMode
-                      ? 'Use light theme'
-                      : 'Use dark theme',
+                  tooltip: localizedUi(
+                    session.isDarkMode ? 'Use light theme' : 'Use dark theme',
+                  ),
                   onPressed: () {
                     session.toggleTheme();
                   },
@@ -235,7 +236,7 @@ class HomePage extends StatelessWidget {
             ),
             SizedBox(width: 8),
             Text(
-              'THURSDAY, 20 AUGUST 2026',
+              localizedToday(),
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 12,

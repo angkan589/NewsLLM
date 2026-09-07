@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:newsllm/core/localization/localized_text.dart';
 import 'package:newsllm/core/navigation/main_navigation_bar.dart';
 import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
@@ -18,7 +19,7 @@ class BookmarksPage extends StatelessWidget {
         surfaceTintColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          tooltip: 'Back',
+          tooltip: localizedUi('Back'),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -272,7 +273,7 @@ class _BookmarkCard extends StatelessWidget {
                   ),
                   SizedBox(width: 10),
                   IconButton(
-                    tooltip: 'Remove bookmark',
+                    tooltip: localizedUi('Remove bookmark'),
                     onPressed: onRemove,
                     icon: Icon(
                       Icons.delete_outline_rounded,

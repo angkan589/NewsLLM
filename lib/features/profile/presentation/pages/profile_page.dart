@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:newsllm/core/localization/localized_text.dart';
 import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/features/bookmarks/presentation/pages/bookmarks_page.dart';
@@ -62,7 +63,7 @@ class ProfilePage extends StatelessWidget {
         surfaceTintColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          tooltip: 'Back',
+          tooltip: localizedUi('Back'),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -170,7 +171,7 @@ class ProfilePage extends StatelessWidget {
                   ),
                   SizedBox(width: 6),
                   Text(
-                    'Frontend demonstration account',
+                    'Verified Firebase account',
                     style: TextStyle(
                       color: Color(0xFF6EE7B7),
                       fontSize: 12,
@@ -239,8 +240,7 @@ class ProfilePage extends StatelessWidget {
           ),
           SizedBox(height: 20),
           Text(
-            'Exam history, average score and streak will use real stored data '
-            'after the backend is connected.',
+            'Quiz scores and saved stories below are loaded from your account.',
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 13,
