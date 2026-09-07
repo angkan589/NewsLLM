@@ -25,6 +25,7 @@ jobs:
           base64 --decode newsllm-code.patch.gz.b64 | gzip -d > /tmp/newsllm.patch
           git apply /tmp/newsllm.patch
           rm newsllm-code.patch.gz.b64
+          sed -i '/assets\/images\/newspapers\//d' pubspec.yaml
       - name: Format and validate
         run: |
           flutter pub get
