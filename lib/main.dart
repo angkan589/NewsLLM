@@ -24,7 +24,7 @@ class NewsLLMApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: AppSession.instance,
+      animation: Listenable.merge([AppSession.instance, FirestoreNewsRepository.changes]),
       builder: (context, child) {
         return MaterialApp(
           title: 'NewsLLM',

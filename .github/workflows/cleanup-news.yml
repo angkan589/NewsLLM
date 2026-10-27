@@ -1,0 +1,51 @@
+name: News retention cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: Preserve legacy bookmarks and delete expired news
+        type: boolean
+        default: false
+  schedule:
+    - cron: '25 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: news-retention-cleanup
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    # Enable only AFTER the updated app has deployed successfully.
+    if: github.event_name == 'workflow_dispatch' || vars.ENABLE_NEWS_CLEANUP == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -r tools/requirements.txt
+      - name: Prepare credential
+        env:
+          FIREBASE_SERVICE_ACCOUNT_B64: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}
+        run: |
+          test -n "$FIREBASE_SERVICE_ACCOUNT_B64"
+          echo "$FIREBASE_SERVICE_ACCOUNT_B64" | base64 --decode > "$RUNNER_TEMP/firebase-service-account.json"
+      - name: Preserve bookmarks and clean up
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-service-account.json
+          EVENT_NAME: ${{ github.event_name }}
+          APPLY: ${{ inputs.apply }}
+        run: |
+          args=()
+          if [[ "$EVENT_NAME" == "schedule" || "$APPLY" == "true" ]]; then
+            args=(--apply)
+          fi
+          python tools/cleanup_news.py "${args[@]}"
+      - name: Remove credential
+        if: always()
+        run: rm -f "$RUNNER_TEMP/firebase-service-account.json"

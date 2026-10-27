@@ -10,6 +10,7 @@ class NewsFact {
 
 class NewsArticle {
   const NewsArticle({
+    this.snapshot,
     required this.id,
     required this.newspaperName,
     required this.category,
@@ -24,6 +25,7 @@ class NewsArticle {
     required this.quizQuestions,
   });
 
+  final Map<String, dynamic>? snapshot;
   final String id;
   final String newspaperName;
   final String category;

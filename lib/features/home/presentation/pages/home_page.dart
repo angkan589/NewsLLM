@@ -19,10 +19,16 @@ class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: Listenable.merge([FirestoreNewsRepository.changes, AppSession.instance]),
+    builder: (context, _) => _buildContent(context),
+  );
+
+  Widget _buildContent(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final isCompact = screenWidth < 900;
-    final leadArticle = FirestoreNewsRepository.articles.first;
+    final today = FirestoreNewsRepository.todayArticles;
+    final leadArticle = today.isEmpty ? null : today.first;
 
     return Scaffold(
       backgroundColor: context.pageBackground,
@@ -48,7 +54,9 @@ class HomePage extends StatelessWidget {
                     SizedBox(height: 36),
                     NewspaperSourcesSection(),
                     SizedBox(height: 48),
-                    if (isCompact)
+                    if (leadArticle == null)
+                      Text('No news published today yet.')
+                    else if (isCompact)
                       Column(
                         children: [
                           _buildLeadStory(context, leadArticle),

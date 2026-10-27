@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
-import 'package:newsllm/features/news/data/mock_news_repository.dart';
 import 'package:newsllm/features/news/domain/models/news_article.dart';
 import 'package:newsllm/features/quiz/domain/models/quiz_models.dart';
 
@@ -11,11 +11,66 @@ class FirestoreNewsRepository {
 
   static List<_FirestoreArticleRecord> _records = [];
 
+  static final changes = ValueNotifier<int>(0);
+  static Timer? _refreshTimer;
+
+  static DateTime retentionCutoff([DateTime? now]) =>
+      (now ?? DateTime.now()).toUtc().subtract(const Duration(days: 7));
+
+  static bool isToday(DateTime date, [DateTime? now]) {
+    final local = date.toUtc().add(const Duration(hours: 6));
+    final today = (now ?? DateTime.now()).toUtc().add(const Duration(hours: 6));
+    return local.year == today.year &&
+        local.month == today.month &&
+        local.day == today.day;
+  }
+
+  static List<_FirestoreArticleRecord> get _recentRecords => _records
+      .where(
+        (record) =>
+            record.publishedAt != null &&
+            record.publishedAt!.isAfter(retentionCutoff()),
+      )
+      .toList();
+
+  static List<NewsArticle> get todayArticles => _recentRecords
+      .where((record) => isToday(record.publishedAt!))
+      .take(6)
+      .map((record) => record.toNewsArticle(_languageCode))
+      .toList();
+
+  static Map<String, dynamic>? snapshotForTitle(String title) {
+    for (final record in _records) {
+      if (record.hasTitle(title)) {
+        return {'id': record.id, 'data': record.data};
+      }
+    }
+    return null;
+  }
+
+  static NewsArticle articleFromSnapshot(Map<String, dynamic> snapshot) =>
+      _FirestoreArticleRecord(
+        id: snapshot['id'] as String,
+        data: Map<String, dynamic>.from(snapshot['data'] as Map),
+      ).toNewsArticle(_languageCode);
+
   static Future<void> initialize() async {
+    await _reload();
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      unawaited(_reload());
+    });
+  }
+
+  static Future<void> _reload() async {
     try {
       final snapshot = await FirebaseFirestore.instance
           .collection('articles')
           .where('isPublished', isEqualTo: true)
+          .where(
+            'publishedAt',
+            isGreaterThan: Timestamp.fromDate(retentionCutoff()),
+          )
           .orderBy('publishedAt', descending: true)
           .get();
 
@@ -26,33 +81,25 @@ class FirestoreNewsRepository {
           )
           .toList();
     } on FirebaseException catch (error) {
-      debugPrint('Could not load Firestore news; using demo news: $error');
-      _records = [];
+      debugPrint('Could not refresh Firestore news: $error');
     }
+    changes.value++;
   }
 
   static bool get isUsingFirestore => _records.isNotEmpty;
 
   static List<NewsArticle> get articles {
-    if (_records.isEmpty) {
-      return MockNewsRepository.articles;
-    }
-
     final languageCode = AppSession.instance.preferredLanguage == 'বাংলা'
         ? 'bn'
         : 'en';
 
-    return _records
+    return _recentRecords
         .map((record) => record.toNewsArticle(languageCode))
         .toList();
   }
 
   static NewsArticle? findById(String id) {
-    if (_records.isEmpty) {
-      return MockNewsRepository.findById(id);
-    }
-
-    for (final record in _records) {
+    for (final record in _recentRecords) {
       if (record.id == id) {
         return record.toNewsArticle(_languageCode);
       }
@@ -62,11 +109,7 @@ class FirestoreNewsRepository {
   }
 
   static NewsArticle? findByTitle(String title) {
-    if (_records.isEmpty) {
-      return MockNewsRepository.findByTitle(title);
-    }
-
-    for (final record in _records) {
+    for (final record in _recentRecords) {
       if (record.hasTitle(title)) {
         return record.toNewsArticle(_languageCode);
       }
@@ -99,7 +142,7 @@ class FirestoreNewsRepository {
     }
 
     if (_records.isNotEmpty) {
-      return _records
+      return _recentRecords
           .where((record) => record.matchesQuery(normalizedQuery))
           .map((record) => record.toNewsArticle(_languageCode))
           .toList();
@@ -126,6 +169,11 @@ class _FirestoreArticleRecord {
 
   final String id;
   final Map<String, dynamic> data;
+
+  DateTime? get publishedAt {
+    final value = data['publishedAt'];
+    return value is Timestamp ? value.toDate().toUtc() : null;
+  }
 
   bool hasTitle(String title) {
     final localizedContent = _map(data['localizedContent']);
@@ -165,6 +213,7 @@ class _FirestoreArticleRecord {
     final category = _string(data['category'], fallback: 'GENERAL');
 
     return NewsArticle(
+      snapshot: {'id': id, 'data': data},
       id: id,
       newspaperName: _string(
         data['sourceName'],

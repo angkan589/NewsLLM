@@ -94,6 +94,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
 
     _isBookmarked = AppSession.instance.isArticleBookmarked(
       widget.resolvedTitle,
+      sourceId: widget.article?.id,
     );
   }
 
@@ -279,9 +280,20 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
       }
     }
 
-    final bookmarked = AppSession.instance.toggleArticleBookmark(
-      widget.resolvedTitle,
-    );
+    bool bookmarked;
+    try {
+      bookmarked = await AppSession.instance.toggleArticleBookmark(
+        widget.resolvedTitle,
+        articleSnapshot: widget.article?.snapshot,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not save bookmark. Please try again.')),
+      );
+      return;
+    }
+    if (!mounted) return;
 
     setState(() {
       _isBookmarked = bookmarked;

@@ -25,7 +25,13 @@ service cloud.firestore {
       match /bookmarks/{articleId} {
         allow read, delete: if ownsUserData(userId);
         allow create, update: if ownsUserData(userId)
-          && request.resource.data.articleId == articleId;
+          && request.resource.data.articleId == articleId
+          // Updated clients must save full copies; old title-only writes
+          // cannot race the retention job and leave dangling bookmarks.
+          && request.resource.data.articleSnapshot is map
+          && request.resource.data.articleSnapshot.id is string
+          && request.resource.data.articleSnapshot.data is map
+          && request.resource.data.articleSnapshot.data.localizedContent is map;
       }
 
       match /quizAttempts/{attemptId} {

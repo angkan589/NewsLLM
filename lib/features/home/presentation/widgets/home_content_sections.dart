@@ -19,7 +19,7 @@ class HomeContentSections extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final articles = FirestoreNewsRepository.articles;
+        final articles = FirestoreNewsRepository.todayArticles;
         final isCompact = constraints.maxWidth < 850;
         final newsCardWidth = isCompact
             ? constraints.maxWidth
@@ -44,6 +44,8 @@ class HomeContentSections extends StatelessWidget {
               },
             ),
             SizedBox(height: 22),
+            if (articles.isEmpty)
+              Text('No news published today yet.'),
             Wrap(
               spacing: 20,
               runSpacing: 20,
@@ -61,6 +63,18 @@ class HomeContentSections extends StatelessWidget {
                   },
                 );
               }).toList(),
+            ),
+            SizedBox(height: 24),
+            Center(
+              child: OutlinedButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => CategoryNewsPage(category: 'Today'),
+                  ),
+                ),
+                icon: Icon(Icons.arrow_forward_rounded),
+                label: Text('View all news'),
+              ),
             ),
             SizedBox(height: 72),
             _buildFactBank(context, isCompact),
@@ -228,7 +242,7 @@ class HomeContentSections extends StatelessWidget {
   }
 
   Widget _buildFactBank(BuildContext context, bool isCompact) {
-    final selectedFacts = FirestoreNewsRepository.articles
+    final selectedFacts = FirestoreNewsRepository.todayArticles
         .expand((article) => article.facts)
         .take(4)
         .toList();

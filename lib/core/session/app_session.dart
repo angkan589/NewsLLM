@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:newsllm/features/news/data/firestore_news_repository.dart';
+import 'package:newsllm/features/news/domain/models/news_article.dart';
 import 'package:newsllm/features/quiz/domain/models/quiz_models.dart';
 
 class AppSession extends ChangeNotifier {
@@ -24,6 +26,15 @@ class AppSession extends ChangeNotifier {
   bool _newsNotificationsEnabled = true;
   bool _examRemindersEnabled = true;
   bool _dailyBriefingReminderEnabled = true;
+
+  final Map<String, Map<String, dynamic>> _bookmarkSnapshots = {};
+
+  NewsArticle? bookmarkedArticle(String title) {
+    final snapshot = _bookmarkSnapshots[title];
+    return snapshot == null
+        ? FirestoreNewsRepository.findByTitle(title)
+        : FirestoreNewsRepository.articleFromSnapshot(snapshot);
+  }
 
   final Set<String> _bookmarkedArticleTitles = {};
   final List<QuizResult> _quizResults = [];
@@ -79,8 +90,29 @@ class AppSession extends ChangeNotifier {
     return (total / _quizResults.length).round();
   }
 
-  bool isArticleBookmarked(String title) {
-    return _bookmarkedArticleTitles.contains(title);
+  String _bookmarkKey(String title, {String? sourceId}) {
+    for (final entry in _bookmarkSnapshots.entries) {
+      if (sourceId != null && entry.value['id'] == sourceId) {
+        return entry.key;
+      }
+      if (sourceId == null) {
+        final data = entry.value['data'] as Map;
+        final localized = data['localizedContent'];
+        if (localized is Map &&
+            localized.values.any(
+              (content) => content is Map && content['title'] == title,
+            )) {
+          return entry.key;
+        }
+      }
+    }
+    return title;
+  }
+
+  bool isArticleBookmarked(String title, {String? sourceId}) {
+    return _bookmarkedArticleTitles.contains(
+      _bookmarkKey(title, sourceId: sourceId),
+    );
   }
 
   Future<void> initializeAuthentication() async {
@@ -102,6 +134,9 @@ class AppSession extends ChangeNotifier {
   }
 
   Future<void> _applyFirebaseUser(User? user) async {
+    _bookmarkSnapshots.clear();
+    _bookmarkedArticleTitles.clear();
+    _quizResults.clear();
     _isSignedIn = user != null;
 
     if (user != null) {
@@ -314,6 +349,19 @@ class AppSession extends ChangeNotifier {
             .where((title) => title.isNotEmpty),
       );
 
+    _bookmarkSnapshots.clear();
+    for (final document in bookmarkSnapshot.docs) {
+      final data = document.data();
+      final snapshot = data['articleSnapshot'];
+      if (data['articleTitle'] is String &&
+          snapshot is Map &&
+          snapshot['id'] is String &&
+          snapshot['data'] is Map) {
+        _bookmarkSnapshots[data['articleTitle'] as String] =
+            Map<String, dynamic>.from(snapshot);
+      }
+    }
+
     final loadedQuizResults = <QuizResult>[];
 
     for (final document in quizSnapshot.docs) {
@@ -370,26 +418,31 @@ class AppSession extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _saveBookmark(User user, String title) async {
+  Future<void> _saveBookmark(
+    User user,
+    String title, {
+    Map<String, dynamic>? articleSnapshot,
+  }) async {
+    final snapshot =
+        articleSnapshot ??
+        FirestoreNewsRepository.snapshotForTitle(title) ??
+        _bookmarkSnapshots[title];
+    if (snapshot == null) throw StateError('Article snapshot unavailable');
     final articleId = _bookmarkDocumentId(title);
-
-    try {
-      await _bookmarksReference(user).doc(articleId).set({
-        'articleId': articleId,
-        'articleTitle': title,
-        'savedAt': FieldValue.serverTimestamp(),
-      });
-    } on FirebaseException catch (error) {
-      debugPrint('Could not save the bookmark: $error');
+    await _bookmarksReference(user).doc(articleId).set({
+      'articleId': articleId,
+      'sourceArticleId': snapshot['id'],
+      'articleTitle': title,
+      'articleSnapshot': snapshot,
+      'savedAt': FieldValue.serverTimestamp(),
+    });
+    if (FirebaseAuth.instance.currentUser?.uid == user.uid) {
+      _bookmarkSnapshots[title] = snapshot;
     }
   }
 
   Future<void> _deleteBookmark(User user, String title) async {
-    try {
-      await _bookmarksReference(user).doc(_bookmarkDocumentId(title)).delete();
-    } on FirebaseException catch (error) {
-      debugPrint('Could not delete the bookmark: $error');
-    }
+    await _bookmarksReference(user).doc(_bookmarkDocumentId(title)).delete();
   }
 
   Future<void> _saveQuizResult(User user, QuizResult result) async {
@@ -499,38 +552,38 @@ class AppSession extends ChangeNotifier {
     }
   }
 
-  bool toggleArticleBookmark(String title) {
-    if (!_isSignedIn) {
-      return false;
-    }
-
+  Future<bool> toggleArticleBookmark(
+    String title, {
+    Map<String, dynamic>? articleSnapshot,
+  }) async {
+    title = _bookmarkKey(title, sourceId: articleSnapshot?['id'] as String?);
     final user = FirebaseAuth.instance.currentUser;
-
-    if (_bookmarkedArticleTitles.contains(title)) {
+    if (!_isSignedIn || user == null) return false;
+    final removing = _bookmarkedArticleTitles.contains(title);
+    if (removing) {
+      await _deleteBookmark(user, title);
+    } else {
+      await _saveBookmark(user, title, articleSnapshot: articleSnapshot);
+    }
+    if (FirebaseAuth.instance.currentUser?.uid != user.uid) return false;
+    if (removing) {
       _bookmarkedArticleTitles.remove(title);
-      if (user != null) {
-        unawaited(_deleteBookmark(user, title));
-      }
+      _bookmarkSnapshots.remove(title);
     } else {
       _bookmarkedArticleTitles.add(title);
-      if (user != null) {
-        unawaited(_saveBookmark(user, title));
-      }
     }
-
     notifyListeners();
-
-    return _bookmarkedArticleTitles.contains(title);
+    return !removing;
   }
 
-  void removeArticleBookmark(String title) {
-    _bookmarkedArticleTitles.remove(title);
-    notifyListeners();
-
+  Future<void> removeArticleBookmark(String title) async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      unawaited(_deleteBookmark(user, title));
-    }
+    if (user == null) return;
+    await _deleteBookmark(user, title);
+    if (FirebaseAuth.instance.currentUser?.uid != user.uid) return;
+    _bookmarkedArticleTitles.remove(title);
+    _bookmarkSnapshots.remove(title);
+    notifyListeners();
   }
 
   @override

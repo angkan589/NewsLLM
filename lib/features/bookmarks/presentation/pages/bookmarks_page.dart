@@ -4,7 +4,6 @@ import 'package:newsllm/core/navigation/main_navigation_bar.dart';
 import 'package:newsllm/core/session/app_session.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
 import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';
-import 'package:newsllm/features/news/data/firestore_news_repository.dart';
 
 class BookmarksPage extends StatelessWidget {
   const BookmarksPage({super.key});
@@ -50,10 +49,10 @@ class BookmarksPage extends StatelessWidget {
             },
             itemBuilder: (context, index) {
               final title = titles[index];
-              final article = FirestoreNewsRepository.findByTitle(title);
+              final article = AppSession.instance.bookmarkedArticle(title);
 
               return _BookmarkCard(
-                title: title,
+                title: article?.title ?? title,
                 source: article?.newspaperName,
                 category: article?.category,
                 readingTime: article?.readingTime,
@@ -68,8 +67,17 @@ class BookmarksPage extends StatelessWidget {
                           ),
                         );
                       },
-                onRemove: () {
-                  AppSession.instance.removeArticleBookmark(title);
+                onRemove: () async {
+                  try {
+                    await AppSession.instance.removeArticleBookmark(title);
+                  } catch (_) {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Could not save bookmark. Please try again.')),
+                    );
+                    return;
+                  }
+                  if (!context.mounted) return;
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

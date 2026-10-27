@@ -25,6 +25,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: "3.44.8"
           cache: true
 
       - name: Install dependencies
@@ -35,6 +36,9 @@ jobs:
 
       - name: Test
         run: flutter test
+
+      - name: Test news retention
+        run: python3 -m unittest discover -s tools -p 'test_cleanup_news.py'
 
       - name: Build web release
         run: flutter build web --release
@@ -53,10 +57,10 @@ jobs:
           python -m json.tool "$RUNNER_TEMP/firebase-service-account.json" \
             > /dev/null
 
-      - name: Deploy to Firebase Hosting
+      - name: Deploy rules, indexes and Firebase Hosting
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-service-account.json
-        run: npx --yes firebase-tools deploy --only hosting --project newsllm-21fad --non-interactive
+        run: npx --yes firebase-tools deploy --only hosting,firestore:rules,firestore:indexes --project newsllm-21fad --non-interactive
 
       - name: Remove temporary credential
         if: always()

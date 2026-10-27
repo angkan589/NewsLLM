@@ -1,3 +1,4 @@
+import 'package:newsllm/core/session/app_session.dart';
 import 'package:flutter/material.dart' hide Text;
 import 'package:newsllm/core/localization/localized_text.dart';
 import 'package:newsllm/core/theme/app_colors.dart';
@@ -19,7 +20,12 @@ class CategoryNewsPage extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: Listenable.merge([FirestoreNewsRepository.changes, AppSession.instance]),
+    builder: (context, _) => _buildContent(context),
+  );
+
+  Widget _buildContent(BuildContext context) {
     final articles = _articles;
 
     return Scaffold(
@@ -37,7 +43,7 @@ class CategoryNewsPage extends StatelessWidget {
           icon: Icon(Icons.arrow_back_rounded),
         ),
         title: Text(
-          category == 'Today' ? 'Today’s briefings' : category,
+          category == 'Today' ? 'News from the last 7 days' : category,
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
@@ -122,7 +128,7 @@ class CategoryNewsPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  category == 'Today' ? 'Today’s news' : category,
+                  category == 'Today' ? 'News from the last 7 days' : category,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 26,
