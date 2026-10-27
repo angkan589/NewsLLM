@@ -19,7 +19,10 @@ class HomeContentSections extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final articles = FirestoreNewsRepository.todayArticles;
+        final articles = FirestoreNewsRepository.todayArticles
+            .skip(1)
+            .take(5)
+            .toList();
         final isCompact = constraints.maxWidth < 850;
         final newsCardWidth = isCompact
             ? constraints.maxWidth
@@ -44,8 +47,7 @@ class HomeContentSections extends StatelessWidget {
               },
             ),
             SizedBox(height: 22),
-            if (articles.isEmpty)
-              Text('No news published today yet.'),
+            if (articles.isEmpty) Text('No news published today yet.'),
             Wrap(
               spacing: 20,
               runSpacing: 20,
