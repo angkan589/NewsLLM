@@ -20,7 +20,7 @@ concurrency:
 jobs:
   cleanup:
     # Enable only AFTER the updated app has deployed successfully.
-    if: github.event_name == 'workflow_dispatch' || vars.ENABLE_NEWS_CLEANUP == 'true'
+    if: 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
