@@ -19,10 +19,12 @@ class HomeContentSections extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final articles = FirestoreNewsRepository.todayArticles
-            .skip(1)
-            .take(5)
-            .toList();
+        final todayArticles = FirestoreNewsRepository.todayArticles;
+        final hasTodayNews = todayArticles.isNotEmpty;
+        final articles =
+            (hasTodayNews ? todayArticles : FirestoreNewsRepository.articles)
+                .take(6)
+                .toList();
         final isCompact = constraints.maxWidth < 850;
         final newsCardWidth = isCompact
             ? constraints.maxWidth
@@ -35,7 +37,7 @@ class HomeContentSections extends StatelessWidget {
             SizedBox(height: 64),
             _buildSectionHeader(
               context,
-              title: 'More from today',
+              title: hasTodayNews ? 'More from today' : 'Recent news',
               subtitle: 'Short, exam-focused briefings selected for you',
               action: 'View all news',
               onAction: () {
