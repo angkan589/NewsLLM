@@ -20,7 +20,10 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-    animation: Listenable.merge([FirestoreNewsRepository.changes, AppSession.instance]),
+    animation: Listenable.merge([
+      FirestoreNewsRepository.changes,
+      AppSession.instance,
+    ]),
     builder: (context, _) => _buildContent(context),
   );
 
@@ -28,7 +31,10 @@ class HomePage extends StatelessWidget {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final isCompact = screenWidth < 900;
     final today = FirestoreNewsRepository.todayArticles;
-    final leadArticle = today.isEmpty ? null : today.first;
+    final displayArticles = today.isNotEmpty
+        ? today
+        : FirestoreNewsRepository.articles;
+    final leadArticle = displayArticles.isEmpty ? null : displayArticles.first;
 
     return Scaffold(
       backgroundColor: context.pageBackground,
