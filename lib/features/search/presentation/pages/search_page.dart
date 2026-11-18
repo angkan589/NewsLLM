@@ -130,6 +130,7 @@ class _SearchPageState extends State<SearchPage> {
         onChanged: _updateSearch,
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
+          labelText: localizedUi('Search news'),
           hintText: localizedUi('Search news, category or newspaper'),
           prefixIcon: Icon(
             Icons.search_rounded,
