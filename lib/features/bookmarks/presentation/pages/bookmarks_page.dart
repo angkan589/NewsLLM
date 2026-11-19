@@ -73,7 +73,7 @@ class BookmarksPage extends StatelessWidget {
                   } catch (_) {
                     if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Could not save bookmark. Please try again.')),
+                      SnackBar(content: Text('Could not remove bookmark. Please try again.')),
                     );
                     return;
                   }
