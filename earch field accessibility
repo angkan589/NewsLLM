@@ -1,0 +1,341 @@
+[1mdiff --git a/lib/features/search/presentation/pages/search_page.dart b/lib/features/search/presentation/pages/search_page.dart[m
+[1mindex 7747e11..e69de29 100644[m
+[1m--- a/lib/features/search/presentation/pages/search_page.dart[m
+[1m+++ b/lib/features/search/presentation/pages/search_page.dart[m
+[36m@@ -1,336 +0,0 @@[m
+[31m-import 'package:flutter/material.dart' hide Text;[m
+[31m-import 'package:newsllm/core/localization/localized_text.dart';[m
+[31m-import 'package:newsllm/core/navigation/main_navigation_bar.dart';[m
+[31m-import 'package:newsllm/features/home/presentation/pages/article_detail_page.dart';[m
+[31m-import 'package:newsllm/features/news/data/firestore_news_repository.dart';[m
+[31m-import 'package:newsllm/features/news/domain/models/news_article.dart';[m
+[31m-[m
+[31m-class SearchPage extends StatefulWidget {[m
+[31m-  const SearchPage({super.key});[m
+[31m-[m
+[31m-  @override[m
+[31m-  State<SearchPage> createState() => _SearchPageState();[m
+[31m-}[m
+[31m-[m
+[31m-class _SearchPageState extends State<SearchPage> {[m
+[31m-  final TextEditingController _searchController = TextEditingController();[m
+[31m-  String _query = '';[m
+[31m-[m
+[31m-  List<NewsArticle> get _results {[m
+[31m-    return FirestoreNewsRepository.search(_query);[m
+[31m-  }[m
+[31m-[m
+[31m-  @override[m
+[31m-  void dispose() {[m
+[31m-    _searchController.dispose();[m
+[31m-    super.dispose();[m
+[31m-  }[m
+[31m-[m
+[31m-  void _updateSearch(String value) {[m
+[31m-    setState(() {[m
+[31m-      _query = value;[m
+[31m-    });[m
+[31m-  }[m
+[31m-[m
+[31m-  void _clearSearch() {[m
+[31m-    _searchController.clear();[m
+[31m-[m
+[31m-    setState(() {[m
+[31m-      _query = '';[m
+[31m-    });[m
+[31m-  }[m
+[31m-[m
+[31m-  void _openArticle(NewsArticle article) {[m
+[31m-    Navigator.of(context).push([m
+[31m-      MaterialPageRoute([m
+[31m-        builder: (context) => ArticleDetailPage(article: article),[m
+[31m-      ),[m
+[31m-    );[m
+[31m-  }[m
+[31m-[m
+[31m-  @override[m
+[31m-  Widget build(BuildContext context) {[m
+[31m-    final results = _results;[m
+[31m-[m
+[31m-    return Scaffold([m
+[31m-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,[m
+[31m-      appBar: AppBar([m
+[31m-        backgroundColor: Theme.of(context).colorScheme.surface,[m
+[31m-        foregroundColor: Theme.of(context).colorScheme.onSurface,[m
+[31m-        surfaceTintColor: Theme.of(context).colorScheme.surface,[m
+[31m-        elevation: 0,[m
+[31m-        leading: IconButton([m
+[31m-          tooltip: localizedUi('Back'),[m
+[31m-          onPressed: () {[m
+[31m-            Navigator.of(context).pop();[m
+[31m-          },[m
+[31m-          icon: Icon(Icons.arrow_back_rounded),[m
+[31m-        ),[m
+[31m-        title: Text([m
+[31m-          'Search news',[m
+[31m-          style: TextStyle(fontWeight: FontWeight.w700),[m
+[31m-        ),[m
+[31m-      ),[m
+[31m-      bottomNavigationBar: MainNavigationBar([m
+[31m-        currentDestination: MainDestination.search,[m
+[31m-      ),[m
+[31m-      body: SingleChildScrollView([m
+[31m-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),[m
+[31m-        child: Center([m
+[31m-          child: ConstrainedBox([m
+[31m-            constraints: BoxConstraints(maxWidth: 950),[m
+[31m-            child: Column([m
+[31m-              crossAxisAlignment: CrossAxisAlignment.start,[m
+[31m-              children: [[m
+[31m-                _buildSearchBox(),[m
+[31m-                SizedBox(height: 25),[m
+[31m-                Text([m
+[31m-                  _query.trim().isEmpty[m
+[31m-                      ? 'All briefings'[m
+[31m-                      : '${results.length} search result${results.length == 1 ? '' : 's'}',[m
+[31m-                  style: TextStyle([m
+[31m-                    color: Theme.of(context).colorScheme.onSurface,[m
+[31m-                    fontSize: 22,[m
+[31m-                    fontWeight: FontWeight.w800,[m
+[31m-                  ),[m
+[31m-                ),[m
+[31m-                SizedBox(height: 6),[m
+[31m-                Text([m
+[31m-                  _query.trim().isEmpty[m
+[31m-                      ? 'Search by headline, category, summary or newspaper.'[m
+[31m-                      : 'Results matching “${_query.trim()}”',[m
+[31m-                  style: TextStyle([m
+[31m-                    color: Theme.of(context).colorScheme.onSurfaceVariant,[m
+[31m-                    fontSize: 14,[m
+[31m-                  ),[m
+[31m-                ),[m
+[31m-                SizedBox(height: 20),[m
+[31m-                if (results.isEmpty)[m
+[31m-                  _buildEmptyState()[m
+[31m-                else[m
+[31m-                  ...results.map(_buildArticleCard),[m
+[31m-              ],[m
+[31m-            ),[m
+[31m-          ),[m
+[31m-        ),[m
+[31m-      ),[m
+[31m-    );[m
+[31m-  }[m
+[31m-[m
+[31m-  Widget _buildSearchBox() {[m
+[31m-    return Container([m
+[31m-      decoration: BoxDecoration([m
+[31m-        color: Theme.of(context).colorScheme.surface,[m
+[31m-        borderRadius: BorderRadius.circular(17),[m
+[31m-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),[m
+[31m-      ),[m
+[31m-      child: TextField([m
+[31m-        controller: _searchController,[m
+[31m-        autofocus: false,[m
+[31m-        onChanged: _updateSearch,[m
+[31m-        textInputAction: TextInputAction.search,[m
+[31m-        decoration: InputDecoration([m
+[31m-          labelText: localizedUi('Search news'),[m
+[31m-          hintText: localizedUi('Search news, category or newspaper'),[m
+[31m-          prefixIcon: Icon([m
+[31m-            Icons.search_rounded,[m
+[31m-            color: Theme.of(context).colorScheme.onSurfaceVariant,[m
+[31m-          ),[m
+[31m-          suffixIcon: _query.isEmpty[m
+[31m-              ? null[m
+[31m-              : IconButton([m
+[31m-                  tooltip: localizedUi('Clear search'),[m
+[31m-                  onPressed: _clearSearch,[m
+[31m-                  icon: Icon(Icons.close_rounded),[m
+[31m-                ),[m
+[31m-          border: InputBorder.none,[m
+[31m-          contentPadding: const EdgeInsets.symmetric([m
+[31m-            horizontal: 18,[m
+[31m-            vertical: 18,[m
+[31m-          ),[m
+[31m-        ),[m
+[31m-      ),[m
+[31m-    );[m
+[31m-  }[m
+[31m-[m
+[31m-  Widget _buildArticleCard(NewsArticle article) {[m
+[31m-    return Padding([m
+[31m-      padding: const EdgeInsets.only(bottom: 14),[m
+[31m-      child: Material([m
+[31m-        color: Theme.of(context).colorScheme.surface,[m
+[31m-        borderRadius: BorderRadius.circular(18),[m
+[31m-        clipBehavior: Clip.antiAlias,[m
+[31m-        child: InkWell([m
+[31m-          onTap: () {[m
+[31m-            _openArticle(article);[m
+[31m-          },[m
+[31m-          child: Container([m
+[31m-            width: double.infinity,[m
+[31m-            padding: const EdgeInsets.all(20),[m
+[31m-            decoration: BoxDecoration([m
+[31m-              borderRadius: BorderRadius.circular(18),[m
+[31m-              border: Border.all([m
+[31m-                color: Theme.of(context).colorScheme.outlineVariant,[m
+[31m-              ),[m
+[31m-            ),[m
+[31m-            child: Row([m
+[31m-              crossAxisAlignment: CrossAxisAlignment.start,[m
+[31m-              children: [[m
+[31m-                Container([m
+[31m-                  width: 50,[m
+[31m-                  height: 50,[m
+[31m-                  alignment: Alignment.center,[m
+[31m-                  decoration: BoxDecoration([m
+[31m-                    color: article.accentColor.withValues(alpha: 0.1),[m
+[31m-                    borderRadius: BorderRadius.circular(14),[m
+[31m-                  ),[m
+[31m-                  child: Icon([m
+[31m-                    _categoryIcon(article.category),[m
+[31m-                    color: article.accentColor,[m
+[31m-                  ),[m
+[31m-                ),[m
+[31m-                SizedBox(width: 16),[m
+[31m-                Expanded([m
+[31m-                  child: Column([m
+[31m-                    crossAxisAlignment: CrossAxisAlignment.start,[m
+[31m-                    children: [[m
+[31m-                      Wrap([m
+[31m-                        spacing: 10,[m
+[31m-                        runSpacing: 6,[m
+[31m-                        children: [[m
+[31m-                          Text([m
+[31m-                            article.category,[m
+[31m-                            style: TextStyle([m
+[31m-                              color: article.accentColor,[m
+[31m-                              fontSize: 11,[m
+[31m-                              fontWeight: FontWeight.w800,[m
+[31m-                              letterSpacing: 0.6,[m
+[31m-                            ),[m
+[31m-                          ),[m
+[31m-                          Text([m
+[31m-                            article.newspaperName,[m
+[31m-                            style: TextStyle([m
+[31m-                              color: Theme.of([m
+[31m-                                context,[m
+[31m-                              ).colorScheme.onSurfaceVariant,[m
+[31m-                              fontSize: 11,[m
+[31m-                              fontWeight: FontWeight.w600,[m
+[31m-                            ),[m
+[31m-                          ),[m
+[31m-                        ],[m
+[31m-                      ),[m
+[31m-                      SizedBox(height: 9),[m
+[31m-                      Text([m
+[31m-                        article.title,[m
+[31m-                        style: TextStyle([m
+[31m-                          color: Theme.of(context).colorScheme.onSurface,[m
+[31m-                          fontSize: 18,[m
+[31m-                          fontWeight: FontWeight.w700,[m
+[31m-                          height: 1.35,[m
+[31m-                        ),[m
+[31m-                      ),[m
+[31m-                      SizedBox(height: 8),[m
+[31m-                      Text([m
+[31m-                        article.summary,[m
+[31m-                        maxLines: 2,[m
+[31m-                        overflow: TextOverflow.ellipsis,[m
+[31m-                        style: TextStyle([m
+[31m-                          color: Theme.of(context).colorScheme.onSurfaceVariant,[m
+[31m-                          fontSize: 14,[m
+[31m-                          height: 1.45,[m
+[31m-                        ),[m
+[31m-                      ),[m
+[31m-                      SizedBox(height: 12),[m
+[31m-                      Row([m
+[31m-                        children: [[m
+[31m-                          Icon([m
+[31m-                            Icons.schedule_rounded,[m
+[31m-                            size: 15,[m
+[31m-                            color: Theme.of([m
+[31m-                              context,[m
+[31m-                            ).colorScheme.onSurfaceVariant,[m
+[31m-                          ),[m
+[31m-                          SizedBox(width: 5),[m
+[31m-                          Text([m
+[31m-                            article.readingTime,[m
+[31m-                            style: TextStyle([m
+[31m-                              color: Theme.of([m
+[31m-                                context,[m
+[31m-                              ).colorScheme.onSurfaceVariant,[m
+[31m-                              fontSize: 12,[m
+[31m-                            ),[m
+[31m-                          ),[m
+[31m-                        ],[m
+[31m-                      ),[m
+[31m-                    ],[m
+[31m-                  ),[m
+[31m-                ),[m
+[31m-                SizedBox(width: 8),[m
+[31m-                Icon([m
+[31m-                  Icons.chevron_right_rounded,[m
+[31m-                  color: Theme.of(context).colorScheme.onSurfaceVariant,[m
+[31m-                ),[m
+[31m-              ],[m
+[31m-            ),[m
+[31m-          ),[m
+[31m-        ),[m
+[31m-      ),[m
+[31m-    );[m
+[31m-  }[m
+[31m-[m
+[31m-  Widget _buildEmptyState() {[m
+[31m-    return Container([m
+[31m-      width: double.infinity,[m
+[31m-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),[m
+[31m-      decoration: BoxDecoration([m
+[31m-        color: Theme.of(context).colorScheme.surface,[m
+[31m-        borderRadius: BorderRadius.circular(20),[m
+[31m-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),[m
+[31m-      ),[m
+[31m-      child: Column([m
+[31m-        children: [[m
+[31m-          Icon([m
+[31m-            Icons.search_off_rounded,[m
+[31m-            size: 48,[m
+[31m-            color: Theme.of(context).colorScheme.onSurfaceVariant,[m
+[31m-          ),[m
+[31m-          SizedBox(height: 16),[m
+[31m-          Text([m
+[31m-            'No briefings found',[m
+[31m-            style: TextStyle([m
+[31m-              color: Theme.of(context).colorScheme.onSurface,[m
+[31m-              fontSize: 20,[m
+[31m-              fontWeight: FontWeight.w800,[m
+[31m-            ),[m
+[31m-          ),[m
+[31m-          SizedBox(height: 8),[m
+[31m-          Text([m
+[31m-            'Try another headline, category or newspaper name.',[m
+[31m-            textAlign: TextAlign.center,[m
+[31m-            style: TextStyle([m
+[31m-              color: Theme.of(context).colorScheme.onSurfaceVariant,[m
+[31m-              height: 1.5,[m
+[31m-            ),[m
+[31m-          ),[m
+[31m-          SizedBox(height: 18),[m
+[31m-          OutlinedButton(onPressed: _clearSearch, child: Text('Clear search')),[m
+[31m-        ],[m
+[31m-      ),[m
+[31m-    );[m
+[31m-  }[m
+[31m-[m
+[31m-  IconData _categoryIcon(String category) {[m
+[31m-    switch (category.toUpperCase()) {[m
+[31m-      case 'NATIONAL':[m
+[31m-        return Icons.account_balance_outlined;[m
+[31m-      case 'INTERNATIONAL':[m
+[31m-        return Icons.public_rounded;[m
+[31m-      case 'BUSINESS':[m
+[31m-        return Icons.trending_up_rounded;[m
+[31m-      case 'SCIENCE & TECH':[m
+[31m-        return Icons.memory_rounded;[m
+[31m-      default:[m
+[31m-        return Icons.article_outlined;[m
+[31m-    }[m
+[31m-  }[m
+[31m-}[m
