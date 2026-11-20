@@ -1,4 +1,4 @@
-# NewsLLM Architecture Overview
+﻿# NewsLLM Architecture Overview
 
 ## 1. Project Overview
 
@@ -8,31 +8,30 @@ The project uses a feature-oriented folder structure to organize application fun
 
 ## 2. Core Structure
 
-### Core
-The core directory contains shared application components.
+The core directory contains shared application components:
 
-- navigation: Main application navigation.
-- theme: Application themes, colors and theme extensions.
-- localization: Reusable localized text components.
-- session: Application session management.
+- Navigation
+- Theme management
+- Localization
+- Session management
 
-### Features
+## 3. Feature Modules
 
-The features directory separates functionality into independent areas:
+The features directory separates application functionality into:
 
-- auth: Authentication interface.
-- home: Homepage, category news and article details.
-- news: News data sources and article models.
-- bookmarks: Saved news articles.
-- search: News search functionality.
-- quiz: Quiz functionality and related models.
-- progress: Examination history and progress.
-- profile: User profile.
-- settings: Application settings.
-- fact_bank: Fact bank functionality.
-- landing: Landing page and presentation components.
+- Authentication
+- Home and news briefings
+- News repositories
+- Bookmarks
+- Search
+- Quiz
+- Progress tracking
+- Profile
+- Settings
+- Fact bank
+- Landing page
 
-## 3. News Data Organization
+## 4. News Data Organization
 
 The news feature contains:
 
@@ -40,26 +39,19 @@ The news feature contains:
 - firestore_news_repository.dart
 - news_article.dart
 
-These files provide separate locations for mock data, Firestore-backed news data and the news article model.
+These files separate mock data, Firestore-backed data and article models.
 
-## 4. Firebase Integration
+## 5. Firebase Integration
 
-The project declares the following Firebase dependencies:
-
-- Firebase Core
-- Firebase Authentication
-- Cloud Firestore
+The project declares Firebase Core, Firebase Authentication and Cloud Firestore dependencies.
 
 Firebase platform configuration is maintained in firebase_options.dart.
 
-## 5. Testing
+## 6. Testing
 
-The existing test directory contains:
+Existing tests are maintained in the test directory.
 
-- widget_test.dart
-- news_retention_test.dart
-
-## 6. Automated Workflows
+## 7. Automated Workflows
 
 The GitHub Actions workflow directory contains:
 
@@ -67,12 +59,10 @@ The GitHub Actions workflow directory contains:
 - cleanup-news.yml
 - flutter-web.yml
 
-These workflows support scheduled news processing, cleanup and Flutter web automation.
+## 8. Development Principles
 
-## 7. Development Principles
-
-- Keep feature-related code organized within its feature directory.
-- Reuse shared components from the core directory.
-- Keep data models separate from presentation widgets.
-- Avoid unnecessary changes to Firebase configuration.
-- Preserve existing application behavior when extending functionality.
+- Keep feature-related code organized.
+- Reuse shared components.
+- Separate data models from presentation.
+- Avoid unnecessary Firebase configuration changes.
+- Preserve existing functionality when extending the application.
